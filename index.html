@@ -14,277 +14,95 @@
 <body>
 
     <!-- Dark Mode Toggle Button -->
+    <!-- Positioned absolutely for more precise placement -->
     <button id="dark-mode-toggle" class="mode-toggle" aria-label="Toggle Dark Mode">
-        <!-- Icon Placeholder - could use SVGs or font icons -->
         <svg class="mode-icon sun-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
         <svg class="mode-icon moon-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
     </button>
 
 
     <div class="container">
-        <div id="persona-selection">
+        <!-- Persona Selection View -->
+        <div id="persona-selection" class="view">
             <h2>Choose your conversation partner:</h2>
 
-            <!-- New Filter Section -->
+            <!-- Filter Section -->
             <div id="persona-filters">
-                <label>Filter by Type/Category:</label>
-                <div class="filter-options">
-                    <input type="radio" id="filter-all" name="persona-type" value="all" checked>
-                    <label for="filter-all">All</label>
+                <label>Filter by:</label>
+                <div class="filter-options" role="tablist">
+                    <!-- Keep your radio buttons as they are, styled via CSS -->
+                    <input type="radio" id="filter-all" name="persona-type" value="all" checked aria-controls="persona-grid">
+                    <label for="filter-all" role="tab" aria-selected="true">All</label>
 
-                    <input type="radio" id="filter-female" name="persona-type" value="female">
-                    <label for="filter-female">Girls</label>
+                    <input type="radio" id="filter-female" name="persona-type" value="female" aria-controls="persona-grid">
+                    <label for="filter-female" role="tab">Girls</label>
 
-                    <input type="radio" id="filter-male" name="persona-type" value="male">
-                    <label for="filter-male">Boys</label>
+                    <input type="radio" id="filter-male" name="persona-type" value="male" aria-controls="persona-grid">
+                    <label for="filter-male" role="tab">Boys</label>
 
-                     <input type="radio" id="filter-romantic" name="persona-type" value="romantic">
-                    <label for="filter-romantic">Romantic</label>
+                     <input type="radio" id="filter-romantic" name="persona-type" value="romantic" aria-controls="persona-grid">
+                    <label for="filter-romantic" role="tab">Romantic</label>
 
-                    <input type="radio" id="filter-complex-relationship" name="persona-type" value="complex-relationship">
-                    <label for="filter-complex-relationship">Complex Relationships</label>
+                    <input type="radio" id="filter-complex-relationship" name="persona-type" value="complex-relationship" aria-controls="persona-grid">
+                    <label for="filter-complex-relationship" role="tab">Complex</label> <!-- Shortened label -->
 
-                    <input type="radio" id="filter-professional" name="persona-type" value="professional">
-                    <label for="filter-professional">Professional</label>
+                    <input type="radio" id="filter-professional" name="persona-type" value="professional" aria-controls="persona-grid">
+                    <label for="filter-professional" role="tab">Professional</label>
 
-                    <input type="radio" id="filter-service" name="persona-type" value="service">
-                    <label for="filter-service">Service/Community</label>
+                    <input type="radio" id="filter-service" name="persona-type" value="service" aria-controls="persona-grid">
+                    <label for="filter-service" role="tab">Service</label>
 
-                    <input type="radio" id="filter-beliefs" name="persona-type" value="beliefs">
-                    <label for="filter-beliefs">Beliefs/Identity</label>
+                    <input type="radio" id="filter-beliefs" name="persona-type" value="beliefs" aria-controls="persona-grid">
+                    <label for="filter-beliefs" role="tab">Beliefs</label>
 
-                    <input type="radio" id="filter-fun" name="persona-type" value="fun">
-                    <label for="filter-fun">Fun/Unique</label>
+                    <input type="radio" id="filter-fun" name="persona-type" value="fun" aria-controls="persona-grid">
+                    <label for="filter-fun" role="tab">Fun</label>
 
-                    <input type="radio" id="filter-anime" name="persona-type" value="anime">
-                    <label for="filter-anime">Anime</label>
+                    <input type="radio" id="filter-anime" name="persona-type" value="anime" aria-controls="persona-grid">
+                    <label for="filter-anime" role="tab">Anime</label>
                      <!-- Add more filter types here if needed -->
                 </div>
             </div>
 
-
-            <select id="persona-select">
-                <option value="">-- Select a Persona --</option>
-
-                <!-- Added data-type (female, male, other) and data-category (general, romantic, complex-relationship, professional, service, fun, anime, beliefs, identity, etc.) -->
-
-                <optgroup label="General & Friendly">
-                    <option value="sarah-friend" data-type="female" data-category="general">Sarah (Just a Friend)</option>
-                    <option value="david-buddy" data-type="male" data-category="general">David (Casual Buddy)</option>
-                    <option value="elena-supportive" data-type="female" data-category="general">Elena (Supportive Listener)</option>
-                    <option value="chris-advisor" data-type="male" data-category="general">Chris (Helpful Advisor)</option>
-                    <option value="maya-explorer" data-type="female" data-category="general">Maya (Curious Explorer)</option>
-                    <option value="sam-optimist" data-type="other" data-category="general">Sam (Always Positive)</option>
-                    <option value="alex-cynic" data-type="other" data-category="general">Alex (Slightly Cynical)</option>
-                     <option value="jess-new-acquaintance" data-type="female" data-category="general">Jess (New Acquaintance)</option>
-                     <option value="mark-old-classmate" data-type="male" data-category="general">Mark (Old Classmate)</option>
-                </optgroup>
-
-                <optgroup label="Romantic Relationships">
-                    <option value="emily-loving-gf" data-type="female" data-category="romantic">Emily (Loving Girlfriend)</option>
-                    <option value="jessica-playful-gf" data-type="female" data-category="romantic">Jessica (Playful Girlfriend)</option>
-                    <option value="sophia-supportive-gf" data-type="female" data-category="romantic">Sophia (Supportive Girlfriend)</option>
-                    <option value="olivia-long-term-gf" data-type="female" data-category="romantic">Olivia (Long-Term GF, Comfortable)</option>
-                     <option value="chloe-very-romantic" data-type="female" data-category="romantic">Chloe (Very Romantic Partner)</option>
-                    <option value="michael-boyf-casual" data-type="male" data-category="romantic">Michael (Casual Boyfriend)</option>
-                    <option value="ryan-boyf-adventurous" data-type="male" data-category="romantic">Ryan (Adventurous Boyfriend)</option>
-                    <option value="lily-ex-partner" data-type="female" data-category="romantic">Lily (Ex-Partner, Cautious)</option>
-                    <option value="daniel-ex-partner" data-type="male" data-category="romantic">Daniel (Ex-Partner, Distant)</option>
-                     <option value="amanda-wife" data-type="female" data-category="romantic">Amanda (Wife)</option>
-                     <option value="david-husband" data-type="male" data-category="romantic">David (Husband)</option>
-                </optgroup>
-
-                <optgroup label="Dating & Early Romance">
-                    <option value="bella-first-date" data-type="female" data-category="dating">Bella (First Date)</option>
-                    <option value="ethan-second-date" data-type="male" data-category="dating">Ethan (Second Date)</option>
-                    <option value="ava-dating-app-match" data-type="female" data-category="dating">Ava (Dating App Match)</option>
-                    <option value="noah-speed-dater" data-type="male" data-category="dating">Noah (Speed Dater)</option>
-                    <option value="mia-blind-date" data-type="female" data-category="dating">Mia (Blind Date)</option>
-                     <option value="liam-dating-app-match" data-type="male" data-category="dating">Liam (Dating App Match)</option>
-                </optgroup>
-
-                 <optgroup label="Flirty & Interested (Non-Explicit)">
-                    <option value="scarlett-flirty-stranger" data-type="female" data-category="flirty">Scarlett (Flirty Stranger)</option>
-                    <option value="jackson-confident-pursuer" data-type="male" data-category="flirty">Jackson (Confident Pursuer)</option>
-                    <option value="amelia-secret-admirer" data-type="female" data-category="flirty">Amelia (Secret Admirer)</option>
-                    <option value="liam-shy-crush" data-type="male" data-category="flirty">Liam (Shy Crush)</option>
-                    <option value="isabella-playful-teaser" data-type="female" data-category="flirty">Isabella (Playful Teaser)</option>
-                    <option value="benjamin-charming" data-type="male" data-category="flirty">Benjamin (Charming & Smooth)</option>
-                    <option value="zoe-bubbly" data-type="female" data-category="flirty">Zoe (Bubbly Personality)</option>
-                     <option value="lucas-mysterious" data-type="male" data-category="flirty">Lucas (Mysterious & Intriguing)</option>
-                     <option value="grace-hopeless-romantic" data-type="female" data-category="flirty">Grace (Hopeless Romantic)</option>
-                      <option value="chloe-subtle-interest" data-type="female" data-category="flirty">Chloe (Subtly Interested)</option>
-                 </optgroup>
-
-                 <optgroup label="Complex Relationships">
-                    <option value="sarah-jealous-gf" data-type="female" data-category="complex-relationship">Sarah (Jealous Girlfriend)</option>
-                    <option value="mark-jealous-partner" data-type="male" data-category="complex-relationship">Mark (Jealous Partner)</option>
-                     <option value="amanda-jealous-wife" data-type="female" data-category="complex-relationship">Amanda (Jealous Wife)</option>
-                     <option value="jessica-sensitive-gf" data-type="female" data-category="complex-relationship">Jessica (Sensitive Girlfriend)</option>
-                     <option value="chris-sensitive-partner" data-type="male" data-category="complex-relationship">Chris (Sensitive Partner)</option>
-                     <option value="olivia-controlling-partner" data-type="female" data-category="complex-relationship">Olivia (Controlling Partner)</option>
-                     <option value="daniel-controlling-partner" data-type="male" data-category="complex-relationship">Daniel (Controlling Partner)</option>
-                     <option value="elena-demanding-wife" data-type="female" data-category="complex-relationship">Elena (Demanding Wife)</option>
-                     <option value="ryan-distant-husband" data-type="male" data-category="complex-relationship">Ryan (Distant Husband)</option>
-                 </optgroup>
-
-                 <optgroup label="Beliefs & Identity">
-                     <option value="maria-feminist" data-type="female" data-category="beliefs">Maria (Feminist)</option>
-                     <option value="liam-atheist" data-type="male" data-category="beliefs">Liam (Atheist)</option>
-                     <option value="aya-christian" data-type="female" data-category="beliefs">Aya (Christian)</option>
-                     <option value="amir-muslim" data-type="male" data-category="beliefs">Amir (Muslim)</option>
-                     <option value="priya-hindu" data-type="female" data-category="beliefs">Priya (Hindu)</option>
-                     <option value="kenji-buddhist" data-type="male" data-category="beliefs">Kenji (Buddhist)</option>
-                     <option value="rachel-jewish" data-type="female" data-category="beliefs">Rachel (Jewish)</option>
-                     <option value="sam-spiritual-but-not-religious" data-type="other" data-category="beliefs">Sam (Spiritual but not Religious)</option>
-                     <option value="jake-skeptic" data-type="male" data-category="beliefs">Jake (Skeptic)</option>
-                 </optgroup>
-
-                 <optgroup label="Combined Types">
-                     <option value="feminist-romantic-partner-maria" data-type="female" data-category="complex-relationship romantic beliefs">Maria (Feminist Romantic Partner)</option>
-                     <option value="christian-friend-david" data-type="male" data-category="general beliefs">David (Christian Friend)</option>
-                      <option value="atheist-teacher-liam" data-type="male" data-category="professional beliefs">Liam (Atheist Teacher)</option>
-                      <option value="feminist-boss-ms-lee" data-type="female" data-category="professional beliefs">Ms. Lee (Feminist Boss)</option>
-                      <option value="bubbly-feminist-zoe" data-type="female" data-category="flirty beliefs">Zoe (Bubbly Feminist)</option>
-                      <option value="sensitive-artist-eloise" data-type="female" data-category="complex-relationship fun">Eloise (Sensitive Artist)</option>
-                      <option value="jealous-teacher-mr-henderson" data-type="male" data-category="complex-relationship professional">Mr. Henderson (Jealous Teacher)</option>
-                      <option value="controlling-manager-sarah" data-type="female" data-category="complex-relationship professional">Sarah (Controlling Manager)</option>
-                      <option value="romantic-librarian-chloe" data-type="female" data-category="romantic service">Chloe (Romantic Librarian)</option>
-                      <option value="spiritual-yoga-instructor-jasmine" data-type="female" data-category="service beliefs">Jasmine (Spiritual Yoga Instructor)</option>
-                 </optgroup>
+            <!-- Search Input -->
+             <div class="search-area">
+                 <input type="text" id="persona-search" placeholder="Search personas...">
+             </div>
 
 
-                 <optgroup label="Professional Roles">
-                    <option value="mr-henderson-teacher" data-type="male" data-category="professional">Mr. Henderson (Formal Teacher)</option>
-                    <option value="ms-davies-mentor" data-type="female" data-category="professional">Ms. Davies (Supportive Mentor)</option>
-                    <option value="dr-ahn-doctor" data-type="other" data-category="professional">Dr. Ahn (Strictly Professional Doctor)</option>
-                    <option value="nurse-caroline-caring" data-type="female" data-category="professional">Nurse Caroline (Caring Professional)</option>
-                    <option value="mr-adams-boss-professional" data-type="male" data-category="professional">Mr. Adams (Strictly Professional Boss)</option>
-                    <option value="ms-lee-boss-flirty" data-type="female" data-category="professional flirty">Ms. Lee (Professional but Flirty Boss)</option>
-                    <option value="jake-colleague-friendly" data-type="male" data-category="professional">Jake (Friendly Work Colleague)</option>
-                    <option value="sophie-colleague-interested" data-type="female" data-category="professional romantic">Sophie (Work Colleague, Subtly Interested)</option>
-                    <option value="mr-evans-client-professional" data-type="male" data-category="professional">Mr. Evans (Strictly Professional Client)</option>
-                    <option value="ms-kim-client-interested" data-type="female" data-category="professional romantic">Ms. Kim (Client, Subtly Interested)</option>
-                    <option value="officer-miller" data-type="male" data-category="professional">Officer Miller (Police Officer)</option>
-                    <option value="firefighter-davis" data-type="male" data-category="professional">Firefighter Davis</option>
-                    <option value="chef-anderson" data-type="other" data-category="professional">Chef Anderson</option>
-                    <option value="architect-brown" data-type="other" data-category="professional">Architect Brown</option>
-                    <option value="engineer-jones" data-type="other" data-category="professional">Engineer Jones</option>
-                 </optgroup>
+            <!-- Container for persona cards - Replaces the select dropdown -->
+            <div id="persona-grid" aria-live="polite" aria-atomic="true">
+                <!-- Persona cards will be inserted here by JavaScript -->
+                <!-- An initial loading or placeholder message can go here -->
+            </div>
 
-                 <optgroup label="Service & Community Roles">
-                    <option value="bartender-mike" data-type="male" data-category="service">Mike (Friendly Bartender)</option>
-                     <option value="bartender-jenna-flirty" data-type="female" data-category="service flirty">Jenna (Flirty Bartender)</option>
-                    <option value="librarian-mrs-peterson" data-type="female" data-category="service">Mrs. Peterson (Kind Librarian)</option>
-                    <option value="librarian-chloe-crush" data-type="female" data-category="service romantic">Chloe (Shy Librarian, Crush)</option>
-                    <option value="yoga-instructor-jasmine" data-type="female" data-category="service">Jasmine (Calm Yoga Instructor)</option>
-                    <option value="barista-chris" data-type="other" data-category="service">Chris (Coffee Shop Barista)</option>
-                     <option value="neighbor-friendly-anna" data-type="female" data-category="service">Anna (Friendly Neighbor)</option>
-                     <option value="neighbor-curious-tom" data-type="male" data-category="service">Tom (Curious Neighbor)</option>
-                     <option value="veterinarian-dr-smith" data-type="other" data-category="service">Dr. Smith (Veterinarian)</option>
-                     <option value="gym-trainer-maria" data-type="female" data-category="service">Maria (Energetic Gym Trainer)</option>
-                </optgroup>
+            <!-- The start chat button is removed as clicking a card starts the chat -->
 
-                 <optgroup label="Unique & Fun Personalities">
-                    <option value="professor-quirky" data-type="male" data-category="fun">Professor Fitzwilliam (Eccentric Scientist)</option>
-                     <option value="adventurer-indiana" data-type="male" data-category="fun">Indiana Jones (Classic Adventurer Archetype)</option>
-                     <option value="detective-hardboiled" data-type="male" data-category="fun">Detective Harding (Hardboiled Detective)</option>
-                     <option value="conspiracy-theorist-gary" data-type="male" data-category="fun">Gary (Conspiracy Theorist)</option>
-                     <option value="poet-eloise" data-type="female" data-category="fun">Eloise (Dramatic Poet)</option>
-                     <option value="gamer-pro-kai" data-type="male" data-category="fun">Kai (Pro Gamer)</option>
-                     <option value="travel-blogger-sophie" data-type="female" data-category="fun">Sophie (World Traveler Blogger)</option>
-                     <option value="eccentric-cat-lady" data-type="female" data-category="fun">Mrs. Higgins (Eccentric Cat Lady)</option>
-                     <option value="wannabe-influencer-britney" data-type="female" data-category="fun">Britney (Wannabe Influencer)</option>
-                     <option value="sarcastic-wit-leo" data-type="male" data-category="fun">Leo (Sarcastic & Witty)</option>
-                     <option value="perpetual-student-arthur" data-type="male" data-category="fun">Arthur (Perpetual Student)</option>
-                     <option value="gardener-zen-hiroshi" data-type="male" data-category="fun">Hiroshi (Zen Gardener)</option>
-                     <option value="film-critic-cecilia" data-type="female" data-category="fun">Cecilia (Opinionated Film Critic)</option>
-                </optgroup>
-
-                <optgroup label="Anime Archetypes">
-                    <option value="anime-tsundere-aya" data-type="female" data-category="anime">Aya (Tsundere)</option>
-                    <option value="anime-genki-mina" data-type="female" data-category="anime">Mina (Genki)</option>
-                    <option value="anime-dere-dere-sakura" data-type="female" data-category="anime">Sakura (DereDere)</option>
-                    <option value="anime-kuudere-rei" data-type="other" data-category="anime">Rei (Kuudere)</option>
-                    <option value="anime-dandere-hinata" data-type="female" data-category="anime">Hinata (Dandere)</option>
-                </optgroup>
-
-                 <optgroup label="More Diverse Roles & Settings">
-                    <option value="musician-street-performer" data-type="female" data-category="diverse">Jasmine (Street Musician)</option>
-                     <option value="artist-gallery-owner" data-type="male" data-category="diverse">Mr. Dupont (Gallery Owner)</option>
-                     <option value="writer-novelist" data-type="female" data-category="diverse">Eleanor Vance (Mystery Novelist)</option>
-                     <option value="photographer-urban" data-type="male" data-category="diverse">Carlos (Urban Photographer)</option>
-                     <option value="programmer-startup" data-type="female" data-category="diverse">Sarah (Startup Programmer)</option>
-                     <option value="chef-food-truck" data-type="male" data-category="diverse">Leo (Food Truck Chef)</option>
-                     <option value="historian-professor" data-type="female" data-category="diverse">Professor Emily Carter</option>
-                     <option value="philosopher-cafe" data-type="male" data-category="diverse">Professor Lee (Cafe Philosopher)</option>
-                     <option value="astronomer-park" data-type="male" data-category="diverse">Dr. Aris (Park Astronomer)</option>
-                     <option value="yoga-student" data-type="female" data-category="diverse">Chloe (Yoga Student)</option>
-                     <option value="personal-shopper" data-type="female" data-category="diverse">Isabelle (Fashion Personal Shopper)</option>
-                     <option value="interior-designer" data-type="male" data-category="diverse">Ethan (Interior Designer)</option>
-                     <option value="event-planner" data-type="female" data-category="diverse">Maria (Busy Event Planner)</option>
-                     <option value="librarian-archivist" data-type="male" data-category="diverse">Mr. Finch (Archivist Librarian)</option>
-                     <option value="teacher-kindergarten" data-type="female" data-category="diverse">Ms. Davis (Kindergarten Teacher)</option>
-                     <option value="coach-sports" data-type="male" data-category="diverse">Coach Rodriguez</option>
-                     <option value="gardener-botanist" data-type="female" data-category="diverse">Dr. Evelyn Reed (Botanist)</option>
-                     <option value="baker-patisserie" data-type="female" data-category="diverse">Sophie Dubois (French Patissier)</option>
-                     <option value="journalist-investigative" data-type="other" data-category="diverse">Alex Chen (Investigative Journalist)</option>
-                     <option value="psychologist-therapist" data-type="other" data-category="diverse">Dr. Anya Sharma (Therapist)</option>
-                     <option value="architect-landscape" data-type="male" data-category="diverse">Liam O'Connell (Landscape Architect)</option>
-                     <option value="biologist-marine" data-type="male" data-category="diverse">Dr. Kai Tanaka (Marine Biologist)</option>
-                     <option value="fashion-designer" data-type="female" data-category="diverse">Gabrielle (Avant-Garde Fashion Designer)</option>
-                     <option value="chef-vegan" data-type="female" data-category="diverse">Chef Chloe Adams (Vegan Chef)</option>
-                     <option value="teacher-music" data-type="male" data-category="diverse">Mr. Lee (Music Teacher)</option>
-                     <option value="pilot-commercial" data-type="male" data-category="diverse">Captain Roberts (Commercial Pilot)</option>
-                     <option value="firefighter-chief" data-type="male" data-category="diverse">Chief Thompson</option>
-                     <option value="police-detective" data-type="female" data-category="diverse">Detective Maria Rossi</option>
-                     <option value="artist-street-muralist" data-type="male" data-category="diverse">Carlos "Mural" Rivera</option>
-                     <option value="writer-screenwriter" data-type="female" data-category="diverse">Jessica King (Screenwriter)</option>
-                     <option value="programmer-game-dev" data-type="male" data-category="diverse">Ethan "Byte" Harris (Game Developer)</option>
-                     <option value="travel-guide-local" data-type="female" data-category="diverse">Maria (Local Travel Guide)</option>
-                     <option value="ecologist-wildlife" data-type="female" data-category="diverse">Dr. Anya Sharma (Wildlife Ecologist)</option>
-                     <option value="bartender-mixologist" data-type="male" data-category="diverse">Leo "The Mix" Miller</option>
-                     <option value="chef-pastry" data-type="male" data-category="diverse">Chef Pierre Dubois</option>
-                     <option value="yoga-master" data-type="male" data-category="diverse">Master Ren</option>
-                     <option value="nurse-pediatric" data-type="female" data-category="diverse">Nurse Emily Johnson (Pediatric)</option>
-                     <option value="doctor-surgeon" data-type="male" data-category="diverse">Dr. Alex Chen (Surgeon)</option>
-                     <option value="librarian-childrens" data-type="female" data-category="diverse">Ms. Claire Adams (Children's Librarian)</option>
-                     <option value="teacher-college-professor" data-type="male" data-category="diverse">Professor Michael Evans</option>
-                     <option value="coach-fitness" data-type="female" data-category="diverse">Coach Brenda</option>
-                     <option value="gardener-urban-farmer" data-type="male" data-category="diverse">Carlos "GreenThumb" Lee</option>
-                     <option value="baker-local" data-type="female" data-category="diverse">Sarah Miller (Local Baker)</option>
-                     <option value="journalist-sports" data-type="male" data-category="diverse">Jake Davis (Sports Journalist)</option>
-                     <option value="psychiatrist-dr" data-type="other" data-category="diverse">Dr. Evelyn Reed (Psychiatrist)</option>
-                     <option value="architect-urban-planner" data-type="male" data-category="diverse">David Kim (Urban Planner)</option>
-                     <option value="biologist-geneticist" data-type="female" data-category="diverse">Dr. Maria Garcia (Geneticist)</option>
-                     <option value="fashion-stylist" data-type="male" data-category="diverse">Liam O'Connell (Fashion Stylist)</option>
-                     <option value="chef-thai" data-type="male" data-category="diverse">Chef Somchai</option>
-                     <option value="teacher-art" data-type="female" data-category="diverse">Ms. Isabella Rossi (Art Teacher)</option>
-                     <option value="pilot-fighter" data-type="male" data-category="diverse">Captain Jake "Maverick" Peterson</option>
-                     <option value="firefighter-rookie" data-type="male" data-category="diverse">Rookie Firefighter Ben</option>
-                     <option value="police-officer-rookie" data-type="other" data-category="diverse">Officer Rodriguez</option>
-                     <option value="artist-digital" data-type="female" data-category="diverse">Zoe Chan (Digital Artist)</option>
-                     <option value="writer-poet" data-type="male" data-category="diverse">Arthur Lee (Poet)</option>
-                     <option value="programmer-web-dev" data-type="female" data-category="diverse">Mia Kim (Web Developer)</option>
-                     <option value="travel-guide-adventure" data-type="male" data-category="diverse">Ryan Smith (Adventure Travel Guide)</option>
-                </optgroup>
-            </select>
-            <button id="start-chat-button" disabled>Start Chat</button>
         </div>
 
-        <div id="chat-container" class="hidden">
+        <!-- Chat View -->
+        <div id="chat-container" class="view hidden">
             <div id="chat-header">
-                Chatting with: <span id="current-persona"></span>
+                 <button id="back-to-personas" aria-label="Back to persona selection">
+                     <!-- Simple back arrow icon -->
+                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
+                 </button>
+                <span id="current-persona"></span>
+                 <button id="clear-chat" aria-label="Clear chat history">
+                     <!-- Simple trash can icon -->
+                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
+                 </button>
             </div>
-            <div id="chatbox">
-                <!-- Initial welcome message (optional, can be added by script too) -->
-                 <div class="message bot-message initial-message">
+            <div id="chatbox" role="log" aria-live="polite" aria-atomic="false">
+                <!-- Initial welcome message or chat history goes here -->
+                 <!-- The JS will clear this and add a fresh initial message on start -->
+                 <!-- <div class="message bot-message initial-message">
                     <p>Please select a persona to begin your chat.</p>
-                </div>
+                </div> -->
             </div>
             <div id="input-area">
-                <input type="text" id="user-input" placeholder="Type your message..." disabled>
-                <button id="send-button" disabled>Send</button>
+                <input type="text" id="user-input" placeholder="Type your message..." aria-label="Type your message" disabled>
+                <button id="send-button" disabled aria-label="Send message">Send</button>
             </div>
         </div>
     </div>

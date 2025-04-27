@@ -5,17 +5,21 @@
 <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
 */
 
-/* CSS Variables for a Professional Palette - Version 3 */
+/* CSS Variables for a Professional Palette - Version 4 (Refined) */
 :root {
     /* Core Colors */
     --primary-brand: #007BFF; /* A standard, clear blue */
     --primary-darker: #0056b3; /* Darker shade for hover */
     --accent-action: #28A745; /* A success green for positive actions like send */
     --accent-action-darker: #218838; /* Darker green for hover */
+    --accent-secondary: #6C757D; /* Muted gray for secondary actions/icons */
+    --accent-secondary-darker: #5A6268; /* Darker muted gray for hover */
+
 
     /* Grayscale & Surface */
     --background: #F8F9FA; /* Very light background */
     --surface: #FFFFFF; /* White for containers/cards */
+    --surface-elevated: #E9ECEF; /* Slightly darker for hover/active states on light surfaces */
     --text-primary: #212529; /* Dark text */
     --text-secondary: #6C757D; /* Muted text */
     --text-placeholder: #ADB5BD; /* Placeholder text color */
@@ -23,26 +27,36 @@
     --border-medium: #CED4DA; /* Medium border */
     --disabled-bg: #E9ECEF; /* Light disabled background */
     --disabled-text: #ADB5BD; /* Light disabled text */
+    --shadow-subtle: rgba(0, 0, 0, 0.08);
+    --shadow-hover: rgba(0, 0, 0, 0.15);
+
 
     /* Element Backgrounds */
     --input-bg: #FFFFFF; /* White input background */
     --bot-message-bg: #E9ECEF; /* Light grey bot message background */
     --user-message-bg: var(--primary-brand); /* User messages use primary brand color */
     --button-text-light: #FFFFFF; /* White text on colored buttons */
+
+     /* Tag Colors (for persona cards) */
+     --tag-bg: #E9ECEF;
+     --tag-text: #495057;
 }
 
-/* Dark Mode Variables - Version 3 */
+/* Dark Mode Variables - Version 4 (Refined) */
 body.dark-mode {
     /* Core Colors */
     --primary-brand: #007BFF; /* Primary stays the same */
     --primary-darker: #0056b3; /* Primary hover stays the same */
     --accent-action: #28A745; /* Accent stays the same for clarity */
     --accent-action-darker: #218838; /* Accent hover stays the same */
+    --accent-secondary: #CED4DA; /* Lighter gray for secondary actions/icons */
+    --accent-secondary-darker: #ADB5BD; /* Even lighter gray for hover */
 
 
     /* Grayscale & Surface */
     --background: #212529; /* Dark background */
     --surface: #343A40; /* Dark grey for containers */
+    --surface-elevated: #495057; /* Slightly lighter for hover/active states on dark surfaces */
     --text-primary: #F8F9FA; /* Lightest text */
     --text-secondary: #CED4DA; /* Medium light text */
     --text-placeholder: #ADB5BD; /* Placeholder text color */
@@ -50,12 +64,19 @@ body.dark-mode {
     --border-medium: #6C757D; /* Medium dark border */
     --disabled-bg: #495057; /* Dark disabled background */
     --disabled-text: #6C757D; /* Dark disabled text */
+    --shadow-subtle: rgba(0, 0, 0, 0.3);
+    --shadow-hover: rgba(0, 0, 0, 0.5);
+
 
     /* Element Backgrounds */
     --input-bg: #343A40; /* Dark input background */
     --bot-message-bg: #495057; /* Dark grey bot message background */
     --user-message-bg: var(--primary-brand); /* User messages still use primary brand color */
     --button-text-light: #FFFFFF; /* Text on primary/accent buttons remains white for contrast */
+
+    /* Tag Colors (for persona cards) */
+     --tag-bg: #495057;
+     --tag-text: #CED4DA;
 }
 
 
@@ -73,6 +94,7 @@ body {
     box-sizing: border-box;
     transition: background-color 0.3s ease, color 0.3s ease;
     line-height: 1.6;
+    overflow-y: auto; /* Ensure body is scrollable if content exceeds height */
 }
 
 /* Style for the mode toggle button */
@@ -84,7 +106,7 @@ body {
 
     padding: 8px; /* Icon button style */
     background-color: transparent; /* No background */
-    color: var(--text-secondary); /* Use secondary text color for icon */
+    color: var(--accent-secondary); /* Use accent secondary color for icon */
     border: 1px solid var(--border-light); /* Subtle border */
     border-radius: 5px; /* Slight roundness */
     cursor: pointer;
@@ -96,6 +118,7 @@ body {
     justify-content: center;
     width: 36px; /* Fixed size */
     height: 36px;
+     z-index: 10; /* Ensure it's above other content */
 }
 
 .mode-toggle .mode-icon {
@@ -106,117 +129,317 @@ body {
 .mode-toggle:hover:not(:disabled) {
     background-color: rgba(0, 0, 0, 0.05); /* Subtle hover background */
     border-color: var(--border-medium); /* Slightly darker border on hover */
+    color: var(--text-primary); /* Darken icon on hover */
 }
 body.dark-mode .mode-toggle:hover:not(:disabled) {
     background-color: rgba(255, 255, 255, 0.1); /* Subtle hover background */
+    color: var(--text-primary);
 }
 
 
 .container {
     background-color: var(--surface);
     border-radius: 12px;
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+    box-shadow: 0 8px 20px var(--shadow-subtle);
     width: 100%;
     max-width: 650px;
-    overflow: hidden;
+    overflow: hidden; /* Contains content within border-radius */
     display: flex;
     flex-direction: column;
-    min-height: 80vh;
+    min-height: 80vh; /* Minimum height to look good */
     transition: background-color 0.3s ease, box-shadow 0.3s ease;
     border: 1px solid var(--border-light);
     margin-top: 60px; /* Space from the top to avoid toggle button */
+    position: relative; /* Needed for absolute positioning within */
 }
 
 body.dark-mode .container {
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 8px 20px var(--shadow-subtle);
+}
+
+/* View Transitions (Optional, can enhance with JS) */
+/* Initial state for views */
+.view {
+    width: 100%;
+    opacity: 1;
+    transition: opacity 0.4s ease-in-out, transform 0.4s ease-in-out; /* Smooth transitions */
+    position: absolute; /* Use absolute positioning for transitions */
+    top: 0;
+    left: 0;
+    height: 100%; /* Take full height of container */
+    overflow-y: auto; /* Allow scrolling within view */
+    display: flex;
+    flex-direction: column;
+}
+
+.view.hidden {
+    opacity: 0;
+    pointer-events: none; /* Prevent interaction when hidden */
+    transform: translateX(100%); /* Slide out to the right */
+     display: flex !important; /* Override hidden utility display none, rely on opacity/pointer-events */
+}
+
+/* Adjustments for chat view to handle layout */
+#chat-container.view {
+     justify-content: space-between; /* Distribute space */
+     transform: translateX(-100%); /* Slide in from the right (initially off-screen left) */
+}
+#chat-container.view:not(.hidden) {
+    transform: translateX(0); /* Slide to center when active */
+}
+#persona-selection.view:not(.hidden) {
+     transform: translateX(0); /* Stay centered when active */
+}
+#persona-selection.view.hidden {
+     transform: translateX(100%); /* Slide out to the right */
 }
 
 
 #persona-selection {
     padding: 40px;
     text-align: center;
-    flex-grow: 1;
-    display: flex;
+    flex-grow: 1; /* Allow it to take up available space */
+    /* The actual scrolling content will be inside #persona-grid */
+    display: flex; /* Use flex for inner layout */
     flex-direction: column;
-    justify-content: center;
     align-items: center;
+     overflow-y: auto; /* Enable scrolling within the view */
 }
 
 #persona-selection h2 {
     color: var(--text-primary);
-    margin-bottom: 30px;
+    margin-bottom: 20px; /* Adjust margin below heading */
     font-size: 1.8em;
     font-weight: 700;
     transition: color 0.3s ease;
+    width: 100%; /* Ensure heading doesn't overflow */
 }
 
-#persona-select {
-    padding: 12px;
-    margin-bottom: 25px;
+/* Refined Filter Options Styling (from previous step) */
+#persona-filters {
+     margin-bottom: 20px; /* Space below filters */
+     width: 100%;
+     max-width: 600px;
+}
+#persona-filters > label { /* Style for the 'Filter by:' text */
+     display: block; /* Make it a block element */
+     text-align: left; /* Align label text left */
+     margin-bottom: 8px;
+     font-weight: 500;
+     color: var(--text-secondary);
+}
+#persona-filters .filter-options {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-start; /* Align filters to the left */
+    gap: 10px;
+     font-size: 0.95em;
+}
+
+#persona-filters label {
+     cursor: pointer;
+     padding: 8px 15px;
+     border: 1px solid var(--border-medium);
+     border-radius: 20px;
+     transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+     font-weight: 400;
+     white-space: nowrap; /* Prevent labels from breaking */
+}
+
+#persona-filters input[type="radio"] {
+    display: none;
+}
+
+#persona-filters input[type="radio"]:checked + label {
+    background-color: var(--primary-brand);
+    color: var(--button-text-light);
+    border-color: var(--primary-brand);
+    font-weight: 500;
+}
+
+body.dark-mode #persona-filters input[type="radio"]:checked + label {
+     background-color: var(--primary-darker);
+     border-color: var(--primary-darker);
+}
+
+/* Search Area */
+.search-area {
+    margin-bottom: 20px;
+     width: 100%;
+     max-width: 600px;
+}
+#persona-search {
+    padding: 12px 15px;
     border: 1px solid var(--border-medium);
     border-radius: 8px;
-    font-size: 1.1em;
+    font-size: 1em;
     width: 100%;
-    max-width: 350px;
     box-sizing: border-box;
     background-color: var(--input-bg);
     color: var(--text-primary);
-    appearance: none;
-    /* Custom arrow colors */
-    background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%236C757D%22%20d%3D%22M287%2C114.7L159.3%2C242.5c-5.4%2C5.4-11.8%2C8-18.2%2C8s-12.8-2.7-18.2-8L5.4%2C114.7C0.2%2C109.5-1.4%2C102-0.3%2C94.4c1.1-7.6%2C6-13.6%2C12.7-17.3l139.5-80.7c6.4-3.7%2C13.8-3.7%2C20.2%2C0l139.5%2C80.7c6.7%2C3.6%2C11.6%2C9.6%2C12.7%2C17.3C293.4%2C102%2C291.8%2C109.5%2C287%2C114.7z%22%2F%3E%3C%2Fsvg%3E');
-    background-repeat: no-repeat;
-    background-position: right 12px center;
-    background-size: 14px auto;
-    padding-right: 35px;
-    cursor: pointer;
     transition: border-color 0.2s ease, background-color 0.2s ease, color 0.2s ease;
 }
-body.dark-mode #persona-select {
-     background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23CED4DA%22%20d%3D%22M287%2C114.7L159.3%2C242.5c-5.4%2C5.4-11.8%2C8-18.2%2C8s-12.8-2.7-18.2-8L5.4%2C114.7C0.2%2C109.5-1.4%2C102-0.3%2C94.4c1.1-7.6%2C6-13.6%2C12.7-17.3l139.5-80.7c6.4-3.7%2C13.8-3.7%2C20.2%2C0l139.5%2C80.7c6.7%2C3.6%2C11.6%2C9.6%2C12.7%2C17.3C293.4%2C102%2C291.8%2C109.5%2C287%2C114.7z%22%2F%3E%3C%2Fsvg%3E');
+#persona-search::placeholder {
+    color: var(--text-placeholder);
+    opacity: 1;
 }
 
 
-#start-chat-button {
-    padding: 14px 30px;
-    background-color: var(--primary-brand); /* Primary button */
-    color: var(--button-text-light);
-    border: none;
-    border-radius: 8px;
+/* Style for the new Persona Grid (from previous step) */
+#persona-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); /* Responsive grid */
+    gap: 20px; /* Space between cards */
+    width: 100%;
+    max-width: 600px; /* Align with container max-width or adjust */
+    margin: 0 auto; /* Center the grid */
+    padding-top: 0px; /* Space below search/filters */
+     padding-bottom: 40px; /* Space at the bottom of the grid */
+     /* flex-grow: 1; /* Allow grid to take up space * No, the view handles scrolling */
+}
+
+/* Style for individual Persona Cards (from previous step) */
+.persona-card {
+    background-color: var(--surface);
+    border: 1px solid var(--border-light);
+    border-radius: 10px; /* Rounded corners */
+    padding: 20px;
+    text-align: center;
     cursor: pointer;
-    font-size: 1.2em;
-    font-weight: 500;
-    transition: background-color 0.2s ease, opacity 0.2s ease;
-}
-
-#start-chat-button:hover:not(:disabled) {
-    background-color: var(--primary-darker); /* Darker primary on hover */
-    opacity: 1;
-}
-
-#start-chat-button:disabled {
-    background-color: var(--disabled-bg);
-    color: var(--disabled-text);
-    cursor: not-allowed;
-    opacity: 1;
-}
-
-#chat-container {
+    transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease, border-color 0.2s ease;
     display: flex;
     flex-direction: column;
-    flex-grow: 1;
-    height: 100%;
+    align-items: center;
+    justify-content: center; /* Center content vertically */
+    min-height: 100px; /* Give cards a minimum height */
+    color: var(--text-primary); /* Default text color */
+    font-family: 'Roboto', sans-serif; /* Ensure font is applied */
+    -webkit-tap-highlight-color: transparent; /* Prevent blue box on mobile tap */
+}
+
+.persona-card:hover:not(:disabled),
+.persona-card:focus:not(:disabled) { /* Add focus state */
+    transform: translateY(-5px); /* Slight lift effect on hover */
+    box-shadow: 0 10px 15px var(--shadow-hover);
+    border-color: var(--primary-brand); /* Highlight border on hover */
+     outline: none; /* Remove default focus outline */
+}
+
+body.dark-mode .persona-card:hover:not(:disabled),
+body.dark-mode .persona-card:focus:not(:disabled) {
+     box-shadow: 0 10px 15px var(--shadow-hover);
+     border-color: var(--primary-brand);
+}
+
+.persona-card:active:not(:disabled) {
+     transform: translateY(-2px); /* Slight press down effect */
+     box-shadow: 0 5px 10px var(--shadow-subtle);
+}
+
+.persona-card h3 {
+    margin-top: 0;
+    margin-bottom: 8px; /* Adjusted margin */
+    font-size: 1.1em; /* Slightly smaller heading */
+    font-weight: 700;
+    color: var(--text-primary);
+    word-break: break-word; /* Allow long names to wrap */
+}
+
+.persona-tags {
+    font-size: 0.75em; /* Slightly smaller tags */
+    color: var(--text-secondary);
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 5px; /* Space between tags */
+    margin-top: 5px; /* Space above tags */
+}
+
+.persona-tags .tag {
+    background-color: var(--tag-bg); /* Use a subtle background for tags */
+    padding: 3px 8px;
+    border-radius: 12px; /* More pill shape */
+    color: var(--tag-text);
+     font-weight: 500;
+}
+
+/* Style for the empty grid message (from previous step) */
+.empty-grid-message {
+    text-align: center;
+    color: var(--text-secondary);
+    font-style: italic;
+    grid-column: 1 / -1; /* Span across all columns in the grid */
+    padding: 40px 0;
+}
+
+
+/* Chat Container & Header (from previous step, refined) */
+#chat-container {
+    /* Adjust display as per view class */
+     padding-top: 15px; /* Space above chatbox */
 }
 
 #chat-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
     padding: 15px 20px;
     background-color: var(--surface);
     border-bottom: 1px solid var(--border-light);
     font-weight: 700;
     color: var(--text-primary);
-    text-align: center;
     transition: background-color 0.3s ease, border-bottom-color 0.3s ease, color 0.3s ease;
     font-size: 1.1em;
+    flex-shrink: 0; /* Prevent header from shrinking */
+     border-top-left-radius: 12px; /* Match container top radius */
+     border-top-right-radius: 12px;
 }
+
+#chat-header span#current-persona {
+    flex-grow: 1;
+    text-align: center;
+    margin: 0 10px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-weight: 700;
+}
+
+#chat-header button {
+    background: none;
+    border: none;
+    color: var(--accent-secondary); /* Muted color for icons/text */
+    cursor: pointer;
+    font-size: 0.9em; /* Keep text size smaller */
+    padding: 8px; /* Increase padding for clickable area */
+    border-radius: 5px;
+    transition: color 0.2s ease, background-color 0.2s ease;
+    display: flex; /* Align icon */
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0; /* Prevent button from shrinking */
+    width: 36px; /* Fixed size for icon button */
+    height: 36px;
+     outline-offset: 2px; /* Space for focus outline */
+}
+#chat-header button svg {
+     width: 20px; /* Icon size */
+     height: 20px;
+}
+
+
+#chat-header button:hover:not(:disabled),
+#chat-header button:focus:not(:disabled) { /* Add focus state */
+    color: var(--primary-brand); /* Highlight on hover */
+     background-color: rgba(0, 0, 0, 0.05); /* Subtle background */
+     outline: none;
+}
+body.dark-mode #chat-header button:hover:not(:disabled),
+body.dark-mode #chat-header button:focus:not(:disabled) {
+     background-color: rgba(255, 255, 255, 0.1);
+     color: var(--primary-brand);
+}
+
 
 #chatbox {
     flex-grow: 1;
@@ -226,35 +449,44 @@ body.dark-mode #persona-select {
     flex-direction: column;
     background-color: var(--surface);
     transition: background-color 0.3s ease;
+    /* Removed initial message display here, handled by JS */
+    /* min-height: 0; /* Important for flex-grow in some browsers */
 }
 
 .message {
-    margin-bottom: 15px;
+    margin-bottom: 12px; /* Slightly less margin */
     padding: 12px 18px;
-    border-radius: 20px;
+    border-radius: 20px; /* Keep rounded general shape */
     max-width: 85%;
     word-wrap: break-word;
     line-height: 1.5;
     font-size: 1em;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1); /* Subtle message bubble shadow */
+    transition: background-color 0.3s ease, color 0.3s ease, box-shadow 0.3s ease;
 }
 
 .user-message {
     align-self: flex-end;
     background-color: var(--user-message-bg);
     color: var(--button-text-light);
-    border-bottom-right-radius: 8px;
+    border-bottom-right-radius: 8px; /* Sharper corner on source side */
+    margin-right: 0; /* Ensure no extra margin */
+    margin-left: 10px; /* Space from left edge */
 }
 
 .bot-message {
     align-self: flex-start;
     background-color: var(--bot-message-bg);
     color: var(--text-primary);
-    border-bottom-left-radius: 8px;
+    border-bottom-left-radius: 8px; /* Sharper corner on source side */
     transition: background-color 0.3s ease, color 0.3s ease;
+    margin-left: 0; /* Ensure no extra margin */
+    margin-right: 10px; /* Space from right edge */
 }
 
 /* Style for the initial instruction message */
-#chatbox .bot-message.initial-message {
+/* Re-add if needed, or handle fully in JS */
+/* #chatbox .bot-message.initial-message {
     margin-top: auto;
     font-style: italic;
     color: var(--text-secondary);
@@ -265,7 +497,8 @@ body.dark-mode #persona-select {
     align-self: center;
     text-align: center;
     font-size: 0.9em;
-}
+     box-shadow: none;
+} */
 
 
 #input-area {
@@ -275,6 +508,9 @@ body.dark-mode #persona-select {
     background-color: var(--surface);
     gap: 10px;
     transition: background-color 0.3s ease, border-top-color 0.3s ease;
+    flex-shrink: 0; /* Prevent input area from shrinking */
+     border-bottom-left-radius: 12px; /* Match container bottom radius */
+     border-bottom-right-radius: 12px;
 }
 
 #user-input {
@@ -287,11 +523,16 @@ body.dark-mode #persona-select {
     background-color: var(--input-bg);
     color: var(--text-primary);
     transition: border-color 0.2s ease, background-color 0.2s ease, color 0.2s ease;
+     outline-offset: 2px; /* Space for focus outline */
 }
 
 #user-input::placeholder {
     color: var(--text-placeholder);
     opacity: 1;
+}
+#user-input:focus {
+     border-color: var(--primary-brand); /* Highlight border on focus */
+     outline: none; /* Remove default outline */
 }
 
 
@@ -305,6 +546,7 @@ body.dark-mode #persona-select {
     font-size: 1em;
     font-weight: 500;
     transition: background-color 0.2s ease, opacity 0.2s ease;
+     outline-offset: 2px; /* Space for focus outline */
 }
 
 #send-button:hover:not(:disabled) {
@@ -315,14 +557,22 @@ body.dark-mode #persona-select {
     background-color: var(--disabled-bg);
     color: var(--disabled-text);
     cursor: not-allowed;
-    opacity: 1;
+    opacity: 0.6; /* Slight opacity change for disabled */
+}
+#send-button:focus:not(:disabled) {
+     outline: none;
+     box-shadow: 0 0 0 3px rgba(40, 167, 69, 0.5); /* Focus ring */
+}
+body.dark-mode #send-button:focus:not(:disabled) {
+     box-shadow: 0 0 0 3px rgba(40, 167, 69, 0.7);
 }
 
 
-/* Utility class for hiding elements */
+/* Utility class for hiding elements - adjusted for view transitions */
 .hidden {
-    display: none !important;
+    display: none; /* Keep display: none for true hiding */
 }
+
 
 /* CSS for Typing Indicator Dots */
 @keyframes blink {
@@ -335,9 +585,10 @@ body.dark-mode #persona-select {
     background-color: var(--bot-message-bg);
      color: var(--text-primary);
      font-size: 1.2em;
-     width: auto;
+     width: auto; /* Allow width to fit dots */
      padding: 10px 15px;
      border-bottom-left-radius: 8px;
+     box-shadow: none; /* Remove shadow for typing */
 }
 
 .message.bot-message.typing .dot {
@@ -360,10 +611,18 @@ body.dark-mode #persona-select {
     body {
         padding: 0;
         align-items: stretch;
+         overflow-y: auto; /* Ensure body can scroll */
     }
      .mode-toggle {
-         right: 15px;
-         top: 15px;
+         right: 10px;
+         top: 10px;
+         width: 30px; /* Smaller toggle button */
+         height: 30px;
+         padding: 6px;
+     }
+     .mode-toggle .mode-icon {
+         width: 16px;
+         height: 16px;
      }
     .container {
         min-height: 100vh;
@@ -372,18 +631,85 @@ body.dark-mode #persona-select {
          border: none;
          margin-top: 0; /* Remove top margin on small screens */
     }
-    #persona-selection, #chatbox, #input-area {
-        padding: 20px 15px;
+
+    .view {
+        padding: 20px 15px; /* Adjust padding for views */
+    }
+
+    #persona-selection {
+        padding: 20px 15px; /* Adjust padding */
     }
      #persona-selection h2 {
-         font-size: 1.6em;
-         margin-bottom: 20px;
+         font-size: 1.5em;
+         margin-bottom: 15px;
+     }
+    #persona-filters {
+         margin-bottom: 15px;
+    }
+      #persona-filters .filter-options {
+          gap: 8px; /* Reduce gap */
+          justify-content: center; /* Center filters on mobile */
+      }
+    .search-area {
+         margin-bottom: 15px;
+    }
+
+     #persona-grid {
+         grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); /* Smaller cards on small screens */
+         gap: 15px; /* Reduce gap */
+          padding-bottom: 20px; /* Adjust bottom padding */
+     }
+     .persona-card {
+         padding: 15px; /* Smaller padding */
+         min-height: 90px; /* Smaller min height */
+     }
+      .persona-card h3 {
+         font-size: 1em; /* Smaller heading size */
+      }
+     .persona-tags {
+         font-size: 0.7em; /* Smaller tag size */
+     }
+
+
+     #chat-header {
+         padding: 10px 15px; /* Adjust padding */
+         font-size: 1em; /* Smaller header font */
+     }
+     #chat-header button {
+         padding: 6px; /* Smaller button padding */
+         width: 30px;
+         height: 30px;
+     }
+     #chat-header button svg {
+          width: 16px; /* Smaller icon size */
+          height: 16px;
      }
 
      #chatbox {
-         padding-bottom: 15px;
+         padding: 15px; /* Adjust padding */
+         padding-bottom: 10px; /* Adjust bottom padding */
      }
      .message {
-         max-width: 90%;
+         max-width: 95%; /* Allow messages to take up more width */
+         margin-bottom: 10px; /* Slightly less margin */
+         padding: 10px 15px; /* Smaller padding */
+         font-size: 0.95em; /* Slightly smaller font */
      }
+
+     #input-area {
+        padding: 10px 15px; /* Adjust padding */
+         gap: 8px; /* Reduce gap */
+     }
+     #user-input {
+         padding: 10px 12px; /* Adjust padding */
+         font-size: 0.95em;
+     }
+    #send-button {
+        padding: 8px 15px; /* Adjust padding */
+         font-size: 0.95em;
+    }
 }
+
+/* Ensure body doesn't scroll when a view is active and container is less than viewport height */
+/* This is tricky with absolute positioning, might need JS to manage body overflow */
+/* For now, let's trust the container/view overflow-y: auto */
