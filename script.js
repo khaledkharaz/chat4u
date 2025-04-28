@@ -1,4 +1,3 @@
-
 // !!! IMPORTANT SECURITY WARNING !!!
 // Placing your API key directly in frontend code is HIGHLY INSECURE.
 // Anyone viewing your page source can steal your key, potentially leading to unexpected charges.
@@ -6,7 +5,7 @@
 // For production, ALWAYS use a backend server to handle API calls securely.
 // As requested, this risk is acknowledged and this key remains client-side for now.
 // ========================================================
-const GOOGLE_API_KEY = 'AIzaSyDxyKzjSP-'; // <--- REPLACE WITH YOUR ACTUAL KEY
+const GOOGLE_API_KEY = 'AIzaSyDxyKzjSP-9AmafkH67mZIKPjrinhBWtN8'; // <--- REPLACE WITH YOUR ACTUAL KEY
 const API_BASE_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent';
 
 // --- Data: Persona Definitions ---
@@ -295,7 +294,7 @@ const allPersonas = [
  { key: 'architect-landscape', name: 'Liam O\'Connell (Landscape Architect)', types: ['male'], categories: ['diverse'], instruction: "You are Liam O'Connell, a landscape architect. Discuss designing outdoor spaces, parks, gardens, and incorporating nature into design. Respond ONLY as Liam O'Connell." },
  { key: 'biologist-marine', name: 'Dr. Kai Tanaka (Marine Biologist)', types: ['male'], categories: ['diverse'], instruction: "You are Dr. Kai Tanaka, a marine biologist. Talk about ocean life, ecosystems, research expeditions, and conservation of marine environments. Respond ONLY as Dr. Kai Tanaka." },
  { key: 'fashion-designer', name: 'Gabrielle (Avant-Garde Fashion Designer)', types: ['female'], categories: ['diverse'], instruction: "You are Gabrielle, an avant-garde fashion designer. Discuss creativity, challenging norms, inspiration, and the process of creating unique clothing. Your tone is artistic and bold. Respond ONLY as Gabrielle." },
- { key: 'chef-vegan', name: 'Chef Chloe Adams (Vegan Chef)', types: ['female'], categories: ['diverse'], instruction: "You are Chef Chloe Adams, a vegan chef. Talk about plant-based cooking, creative recipes, sourcing ingredients, and the philosophy behind veganism. Respond ONLY as Chef Chloe Adams." },
+ { key: 'chef-vegan', name: 'Chef Chloe Adams (Vegan Chef)', types: ['female'], categories: ['diverse'], instruction: "You are Chef Chloe Adams, a vegan chef. Talk about plant-based cooking, creative recipes, sourcing ingredients, and the philosophy behind veganism. Your tone is vibrant and community-focused. Respond ONLY as Chef Chloe Adams." },
  { key: 'teacher-music', name: 'Mr. Lee (Music Teacher)', types: ['male'], categories: ['diverse'], instruction: "You are Mr. Lee, a music teacher. Discuss musical instruments, theory, composers, and the joy of learning music. Your tone is patient and passionate. Respond ONLY as Mr. Lee." },
  { key: 'pilot-commercial', name: 'Captain Roberts (Commercial Pilot)', types: ['male'], categories: ['diverse'], instruction: "You are Captain Roberts, a commercial pilot. Talk about flying, different aircraft, destinations, and life in the skies. Your tone is professional and calm. Respond ONLY as Captain Roberts." },
  { key: 'firefighter-chief', name: 'Chief Thompson', types: ['male'], categories: ['diverse'], instruction: "You are Chief Thompson, a fire chief. Discuss leading a team, managing emergencies, and ensuring public safety. Your tone is authoritative and experienced. Respond ONLY as Chief Thompson." },
@@ -367,7 +366,8 @@ let currentState = 'persona-selection'; // 'persona-selection' or 'chat' (Still 
 let selectedPersona = null; // Will store the selected persona object {key, name, instruction, ...}
 let conversationHistory = []; // Stores messages in the format [{ role: 'user'|'model', parts: [{text: '...'}] }]
 // Feature 1 State (Multi-select filters - persistence added in Step 1 JS)
-let selectedFilters = ['all']; // Array of selected filter values (default to 'all')
+// Initialize as empty array, loadState will populate it, or it defaults to ['all'] later
+let selectedFilters = []; // Array of selected filter values (default to ['all'] after load)
 let currentSearchTerm = ''; // Track the current search input value
 
 // Feature 3 State (Password Unlock - Persistence for unlocked state via sessionStorage)
@@ -376,64 +376,146 @@ const SESSION_STORAGE_KEY_UNLOCKED = 'appUnlocked'; // Key for session storage f
 let unlockClickCount = 0;
 const UNLOCK_CLICK_THRESHOLD = 5; // Number of clicks to reveal password input
 
+// --- Feature 4: Chat Persistence State (using sessionStorage) ---
+const SESSION_STORAGE_KEY_ACTIVE_PERSONA = 'activePersonaKey';
+const SESSION_STORAGE_KEY_HISTORY = 'conversationHistory';
+
+
 // --- Configuration ---
 // Negative instruction to prevent revealing AI identity (always apply)
 const negativeInstruction = `Absolutely do NOT mention that you are an AI, a bot, a large language model, a machine, a computer program, artificial intelligence, or anything similar. Do not break character or refer to yourself as anything other than the persona you are roleplaying.`;
 
-// --- Placeholder for future Persistence (Step 1 JS onwards) ---
-// These functions will be implemented in future steps to save/load filters and other state.
-const LOCAL_STORAGE_KEY_STATE = 'aiPersonaChatAppState'; // Key for localStorage state
+// --- Feature 1: Persistence (Step 1 JS) ---
+const LOCAL_STORAGE_KEY_STATE = 'aiPersonaChatAppState'; // Key for localStorage state for filters etc.
 
 const saveState = () => {
-    // TODO: Implement saving relevant parts of the app state to localStorage
-    // This will be fully implemented in Step 1 JS for filters, and expanded in later steps.
-    // Example:
-    // const stateToSave = {
-    //     filters: selectedFilters,
-    //     // histories: conversationHistoryMap, // Feature 4
-    //     // personas: allPersonasData, // Feature 2
-    //     // openChats: openConversationKeys // Feature 4
-    // };
-    // try {
-    //     localStorage.setItem(LOCAL_STORAGE_KEY_STATE, JSON.stringify(stateToSave));
-    //     // console.log('State saved.');
-    // } catch (e) {
-    //     console.error('Error saving state to localStorage:', e);
-    // }
-    console.log("State saved (stub)"); // Current stub behavior
+    const stateToSave = {
+        filters: selectedFilters,
+        // TODO: Add other state here in future features (like dynamic personas)
+    };
+    try {
+        localStorage.setItem(LOCAL_STORAGE_KEY_STATE, JSON.stringify(stateToSave));
+        // console.log('State saved:', stateToSave);
+    } catch (e) {
+        console.error('Error saving state to localStorage:', e);
+    }
 };
 
 const loadState = () => {
-    // TODO: Implement loading relevant parts of the app state from localStorage
-    // This will be fully implemented in Step 1 JS for filters, and expanded in later steps.
-    // Example:
-    // try {
-    //     const savedState = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY_STATE));
-    //     if (savedState) {
-    //         selectedFilters = savedState.filters || ['all'];
-    //         // conversationHistoryMap = savedState.histories || {}; // Feature 4
-    //         // allPersonasData = savedState.personas || allPersonas; // Feature 2 (with fallback)
-    //         // openConversationKeys = savedState.openChats || []; // Feature 4
-    //         console.log("State loaded.");
-    //     } else {
-    //         console.log("No saved state found.");
-    //         // Initialize with defaults if no saved state
-    //         selectedFilters = ['all'];
-    //         // allPersonasData = allPersonas; // Feature 2 (load hardcoded)
-    //     }
-    // } catch (e) {
-    //     console.error('Error loading state from localStorage:', e);
-    //     // Fallback to defaults if load fails
-    //     selectedFilters = ['all'];
-    //     // allPersonasData = allPersonas; // Feature 2 (load hardcoded)
-    // }
+    try {
+        const savedState = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY_STATE));
+        if (savedState) {
+            // Load filters, default to ['all'] if null or empty array from storage
+            selectedFilters = Array.isArray(savedState.filters) && savedState.filters.length > 0 ? savedState.filters : ['all'];
+            // TODO: Load other state here in future features
+            console.log("State loaded from localStorage:", selectedFilters);
+        } else {
+            console.log("No localStorage state found. Initializing defaults.");
+            selectedFilters = ['all']; // Default to 'all' filter if no state
+        }
+    } catch (e) {
+        console.error('Error loading state from localStorage:', e);
+        // Fallback to defaults if load fails
+        selectedFilters = ['all'];
+    }
 
-     // For current step, only handle default filters if no load logic exists
-     selectedFilters = ['all']; // Default filter state
+    // After loading (or setting defaults), initialize filter checkboxes based on state
+    updateFilterCheckboxes(); // Call this after selectedFilters is set
+};
 
-     // After loading (or setting defaults), initialize filter checkboxes based on state
-     updateFilterCheckboxes();
-     console.log("State loaded (stub), filters initialized."); // Current stub behavior
+
+// --- Feature 4: Chat Persistence Logic (using sessionStorage) ---
+
+// Function to save the current chat state to sessionStorage
+const saveActiveChatState = () => {
+    if (selectedPersona && conversationHistory.length > 0) {
+        try {
+            sessionStorage.setItem(SESSION_STORAGE_KEY_ACTIVE_PERSONA, selectedPersona.key);
+            sessionStorage.setItem(SESSION_STORAGE_KEY_HISTORY, JSON.stringify(conversationHistory));
+            console.log(`Active chat state saved for persona: ${selectedPersona.key}`);
+        } catch (e) {
+            console.error('Error saving active chat state to sessionStorage:', e);
+        }
+    } else {
+         // Clear state if there's no active chat to save (e.g., after clearing history or going back)
+         sessionStorage.removeItem(SESSION_STORAGE_KEY_ACTIVE_PERSONA);
+         sessionStorage.removeItem(SESSION_STORAGE_KEY_HISTORY);
+         console.log('No active chat state to save or state cleared.');
+    }
+};
+
+// Function to load saved chat state from sessionStorage
+// Returns true if state was loaded, false otherwise.
+const loadActiveChatState = () => {
+    try {
+        const savedPersonaKey = sessionStorage.getItem(SESSION_STORAGE_KEY_ACTIVE_PERSONA);
+        const savedHistoryString = sessionStorage.getItem(SESSION_STORAGE_KEY_HISTORY);
+
+        if (savedPersonaKey && savedHistoryString) {
+            // TODO: In Feature 2, this should use the mutable persona data source
+            const personaObject = allPersonas.find(p => p.key === savedPersonaKey);
+
+            if (personaObject) {
+                selectedPersona = personaObject;
+                conversationHistory = JSON.parse(savedHistoryString);
+
+                // Restore the UI
+                currentPersonaSpan.textContent = selectedPersona.name;
+                renderChatHistory(conversationHistory); // Function to populate the chatbox
+                // Enable input and send button only if API key is valid
+                 if (GOOGLE_API_KEY !== '' && GOOGLE_API_KEY.length >= 20 && !GOOGLE_API_KEY.startsWith('YOUR')) {
+                     userInput.disabled = false;
+                     sendButton.disabled = false;
+                      // Don't focus input immediately on load, wait for view transition
+                 } else {
+                      console.warn("Chat input disabled because API Key is not configured.");
+                      // Maybe display a message in the chatbox about the API key
+                      // Check if chatbox is currently visible before displaying the message
+                      if (!chatContainerDiv.classList.contains('hidden')) {
+                         displayBotMessage("API Key is not configured. Chat functionality is disabled.", false);
+                      }
+                 }
+
+                console.log(`Active chat state loaded for persona: ${selectedPersona.name}`);
+                announce(`Returning to chat with ${selectedPersona.name}.`);
+                return true; // State successfully loaded
+            } else {
+                console.warn(`Saved persona key "${savedPersonaKey}" not found in persona list.`);
+                // If persona not found, clear the invalid saved state
+                sessionStorage.removeItem(SESSION_STORAGE_KEY_ACTIVE_PERSONA);
+                sessionStorage.removeItem(SESSION_STORAGE_KEY_HISTORY);
+                return false; // Persona not found
+            }
+        } else {
+            console.log('No active chat state found in sessionStorage.');
+            return false; // No state saved
+        }
+    } catch (e) {
+        console.error('Error loading active chat state from sessionStorage:', e);
+        // Clear corrupted state on error
+        sessionStorage.removeItem(SESSION_STORAGE_KEY_ACTIVE_PERSONA);
+        sessionStorage.removeItem(SESSION_STORAGE_KEY_HISTORY);
+        return false; // Error loading state
+    }
+};
+
+// Helper function to render messages from history array into the chatbox
+const renderChatHistory = (history) => {
+    chatbox.innerHTML = ''; // Clear current chatbox content
+    if (history.length === 0) {
+        // Show initial message if history is empty (shouldn't happen if history is saved only when > 0)
+        // Or if it's a new chat we just started
+         displayBotMessage(`You are now chatting with ${selectedPersona.name}. Say hello!`, false);
+    } else {
+        history.forEach(message => {
+             if (message.role === 'user') {
+                 displayUserMessage(message.parts[0].text);
+             } else if (message.role === 'model') {
+                 displayBotMessage(message.parts[0].text, false);
+             }
+        });
+    }
+    scrollToBottom(); // Scroll to the end after rendering
 };
 
 
@@ -444,18 +526,19 @@ const checkUnlockStatus = () => {
     const isUnlocked = sessionStorage.getItem(SESSION_STORAGE_KEY_UNLOCKED) === 'true';
     if (isUnlocked) {
         unlockApp(false); // Unlock without saving state again (sessionStorage already set)
-        // Call initial renders/setup here if unlocked
-        loadState(); // Load other state (filters, etc.) if starting unlocked
-        filterAndRenderPersonas(); // Initial render of grid based on loaded filters/search
-        // showView('persona-selection'); // Called by unlockApp
+        // unlockApp now handles loading chat state and showing the correct view based on state.
     } else {
         lockApp(false); // Lock without removing state (it's not there)
         // App remains in locked state until unlocked
+        // No need to load chat state if locked initially
     }
 };
 
 // Function to set the app to locked state
 const lockApp = (removeFromSession = true) => {
+    // --- NEW: Save active chat state before clearing ---
+    saveActiveChatState();
+
     body.classList.add('locked');
     // CSS handles visibility of #reveal-password-button and #lock-app-button
 
@@ -471,7 +554,7 @@ const lockApp = (removeFromSession = true) => {
          view.setAttribute('aria-hidden', 'true');
      });
 
-     // Clear state related to the active chat and history when locking
+     // Clear state related to the active chat and history when locking (after saving!)
      selectedPersona = null;
      conversationHistory = [];
      chatbox.innerHTML = ''; // Clear displayed chat messages
@@ -481,7 +564,10 @@ const lockApp = (removeFromSession = true) => {
 
     if (removeFromSession) {
         sessionStorage.removeItem(SESSION_STORAGE_KEY_UNLOCKED);
-        console.log('App locked and state removed from session storage.');
+        // We decided to keep the chat state saved in session storage upon lock,
+        // so it can be restored if the user unlocks again within the same session.
+        // It will be cleared if they clear chat or close the browser.
+        console.log('App locked and unlock state removed from session storage.');
          announce('App locked.'); // Announce for screen readers
     } else {
          console.log('App is locked on load.');
@@ -509,15 +595,32 @@ const unlockApp = (saveStateToSession = true) => {
          console.log('App unlocked from session storage.');
     }
 
-    // Re-initialize the app's main views (like showing the persona selection)
-     showView('persona-selection'); // Use your existing showView function
+    // Load other state (filters) first
+    loadState();
 
-     // Attempt to focus the search input after unlock
-     setTimeout(() => { personaSearchInput.focus(); }, 100);
+    // --- NEW: Attempt to load active chat state ---
+    const chatLoaded = loadActiveChatState();
+    if (chatLoaded) {
+        showView('chat'); // Go directly to chat view if state loaded
+         // Focus input after view transition
+        setTimeout(() => { if (!userInput.disabled) userInput.focus(); }, 100);
+    } else {
+         // If no chat state loaded, go to persona selection as default
+         filterAndRenderPersonas(); // Initial render of grid based on loaded filters/search
+         showView('persona-selection');
+         // Attempt to focus the search input after unlock
+         setTimeout(() => { personaSearchInput.focus(); }, 100);
+    }
 
      // Ensure the correct button has the correct ARIA label when unlocked (CSS controls visibility)
      revealPasswordButton.setAttribute('aria-label', 'Reveal Password Input'); // Stays the same, just hidden
      lockAppButton.setAttribute('aria-label', 'Lock App'); // Set label for the visible button
+
+     // API Key check: Ensure chat input is enabled ONLY if unlocked AND key is valid.
+     // This check is already handled within loadActiveChatState and startChat,
+     // which are called after unlockApp determines the view.
+     // If unlockApp goes to persona selection, chat input remains disabled until a persona is picked.
+     // If unlockApp goes to chat view, loadActiveChatState handles enabling based on key status.
 };
 
 // Function to attempt unlocking with a password
@@ -525,6 +628,7 @@ const attemptUnlock = () => {
     const enteredPassword = passwordInput.value;
     if (enteredPassword === UNLOCK_PASSWORD) {
         unlockApp(true); // Pass true to save state to session storage
+        // unlockApp now handles loading chat state and showing the correct view
     } else {
         unlockErrorMessage.textContent = 'Incorrect password. Try again.';
         unlockErrorMessage.classList.remove('hidden');
@@ -545,13 +649,15 @@ const createPersonaCard = (persona) => {
     card.dataset.key = persona.key; // Store the key on the element
 
     // Ensure persona.categories is an array before mapping
-    const tagsHtml = (persona.categories || []).map(cat =>
-         `<span class="tag">${cat.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase())}</span>`
+    // Combine types and categories for tag display
+    const allTags = [...(persona.types || []), ...(persona.categories || [])];
+    const tagsHtml = allTags.map(tag =>
+         `<span class="tag">${tag.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase())}</span>`
         ).join('');
 
     card.innerHTML = `
         <h3>${persona.name}</h3>
-        ${persona.categories && persona.categories.length > 0 ? `<div class="persona-tags">${tagsHtml}</div>` : ''}
+        ${allTags.length > 0 ? `<div class="persona-tags">${tagsHtml}</div>` : ''}
     `;
     return card;
 };
@@ -600,36 +706,41 @@ const renderPersonaGrid = (personasToDisplay) => {
 const filterAndRenderPersonas = () => {
     // Ensure this only runs if the main app content is visible (or handle hiding/showing results)
     // The checkUnlockStatus logic ensures this is called only when unlocked or loading unlocked state.
+     if (body.classList.contains('locked')) {
+         // Maybe render an empty grid or a message indicating it's locked?
+         renderPersonaGrid([]); // Or a specific "App is locked" message
+         return; // Don't perform actual filtering
+     }
+
 
     const searchTerm = personaSearchInput.value.toLowerCase(); // Read search term directly for now
 
     const filtered = allPersonas.filter(persona => { // TODO: This needs to read from the mutable persona data in Step 2
         // Ensure persona.types and persona.categories are arrays for safety
-        const personaTypes = persona.types || [];
-        const personaCategories = persona.categories || [];
+        const personaTags = [...(persona.types || []), ...(persona.categories || [])]; // Combine for easier checking
 
-        // --- Feature 1: Multi-select Filter Logic ---
+        // --- Feature 1: Multi-select Filter Logic (AND logic) ---
         let passesFilter = false;
-        // If 'all' is explicitly selected OR if no filters are selected (meaning show all)
-        // Note: The UI logic in the event listener should ensure that if no other filters are checked,
-        // 'all' is added to selectedFilters. So selectedFilters should ideally never be truly empty unless intended.
+
+        // If 'all' is explicitly selected OR if no filters are selected at all, show all
+        // Note: selectedFilters = [] is now the representation of 'show all' when 'all' isn't checked.
         if (selectedFilters.includes('all') || selectedFilters.length === 0) {
-             // If selectedFilters is empty, treat as 'all' filter
              passesFilter = true;
         } else {
-             // Check if persona includes *any* of the selected filters
-             // Combine types and categories for filtering
-            const allPersonaTags = [...personaTypes, ...personaCategories];
-            passesFilter = selectedFilters.some(filterValue => allPersonaTags.includes(filterValue));
+             // If specific filters are selected, the persona must match *EVERY* selected filter
+             passesFilter = selectedFilters.every(filterValue => {
+                 // The filterValue must be present in the persona's combined tags (types + categories)
+                 return personaTags.includes(filterValue);
+             });
         }
         // --- End Multi-select Filter Logic ---
 
-        // Filter by Search Term (check name, types, and categories)
+        // Filter by Search Term (check name and combined tags)
         const searchTermMatch = persona.name.toLowerCase().includes(searchTerm) ||
-                                personaTypes.some(type => type.toLowerCase().includes(searchTerm)) ||
-                                personaCategories.some(cat => cat.toLowerCase().includes(searchTerm));
+                                personaTags.some(tag => tag.toLowerCase().includes(searchTerm));
 
-        return passesFilter && searchTermMatch; // Combine filter and search
+
+        return passesFilter && searchTermMatch; // Combine filter and search (both must be true)
     });
 
     renderPersonaGrid(filtered);
@@ -637,7 +748,6 @@ const filterAndRenderPersonas = () => {
 
 
 // Function to update filter checkboxes based on the `selectedFilters` array (Feature 1 JS)
-// This will be fully implemented in Step 1 JS persistence
 const updateFilterCheckboxes = () => {
      filterCheckboxes.forEach(checkbox => {
          const isSelected = selectedFilters.includes(checkbox.value);
@@ -648,35 +758,40 @@ const updateFilterCheckboxes = () => {
               label.setAttribute('aria-selected', isSelected ? 'true' : 'false');
          }
      });
-     // Ensure the 'all' checkbox checked state and ARIA selected state is correct based on the logic
+     // The 'all' checkbox checked state is now handled within the loop, but let's double-check
+     // the ARIA for 'all' specifically in case its label doesn't perfectly match the loop logic
       const allCheckbox = document.getElementById('filter-all');
       const allLabel = document.querySelector('label[for="filter-all"]');
-     // The 'all' checkbox should be checked if 'all' is in the selectedFilters list,
-     // or if selectedFilters is empty (meaning show all).
-     const isAllLogicallySelected = selectedFilters.includes('all') || selectedFilters.length === 0;
-     if (allCheckbox) allCheckbox.checked = isAllLogicallySelected;
-     if (allLabel) allLabel.setAttribute('aria-selected', isAllLogicallySelected ? 'true' : 'false');
-
-     // If 'all' is checked, ensure other boxes are *not* visually checked (they should be handled by the event listener, but this syncs UI)
-     if (isAllLogicallySelected) {
-          filterCheckboxes.forEach(checkbox => {
-              if (checkbox.value !== 'all') checkbox.checked = false;
-          });
-     }
+      if (allCheckbox && allLabel) {
+           allLabel.setAttribute('aria-selected', allCheckbox.checked ? 'true' : 'false');
+      }
 };
 
 
 // --- View Switching Logic ---
 
 // Function to handle starting a chat (called when a card is clicked)
+// This function is for STARTING A *NEW* CHAT.
 // TODO: This needs modification for Feature 4 (multiple chats)
 const startChat = (persona) => {
     if (!persona) {
         console.error("No persona provided to startChat.");
         return;
     }
-    selectedPersona = persona; // Store the selected persona object
-    conversationHistory = []; // Clear history for a new chat (will change in Feature 4)
+
+    // --- NEW: Save the *previous* active chat state before starting a new one ---
+    // This ensures that if the user navigates to a new chat, the old one is saved
+    // in sessionStorage for the duration of the session.
+    saveActiveChatState();
+
+    selectedPersona = persona; // Set the selected persona object
+    conversationHistory = []; // Clear history for a *new* chat
+
+    // Save the *new* empty history state for this persona immediately
+    // This makes `loadActiveChatState` find this persona even with empty history
+    // when returning to the app later in the session.
+    saveActiveChatState();
+
 
     // Update chat header
     currentPersonaSpan.textContent = persona.name;
@@ -688,10 +803,22 @@ const startChat = (persona) => {
         </div>
     `;
 
-    // Enable input and send button
-    userInput.disabled = false;
-    sendButton.disabled = false;
-    userInput.focus(); // Focus the input
+    // Enable input and send button only if API key is valid
+     if (GOOGLE_API_KEY !== '' && GOOGLE_API_KEY.length >= 20 && !GOOGLE_API_KEY.startsWith('YOUR')) {
+        userInput.disabled = false;
+        sendButton.disabled = false;
+        userInput.focus(); // Focus the input
+     } else {
+         console.warn("Chat input disabled because API Key is not configured.");
+         // Display API key message if the chat view is about to be shown
+          if (!chatContainerDiv.classList.contains('hidden')) {
+            displayBotMessage("API Key is not configured. Chat functionality is disabled.", false);
+         } else {
+             // If chat container is hidden, this startChat might be interrupted,
+             // the message will be displayed by loadActiveChatState if it goes to chat.
+         }
+     }
+
 
     // Smooth transition to chat view
     showView('chat');
@@ -706,21 +833,26 @@ const startChat = (persona) => {
 // Function to go back to persona selection
 // TODO: This needs modification for Feature 4 (multiple chats)
 const goBackToPersonas = () => {
-    selectedPersona = null; // Clear selected persona
+    // --- NEW: Save current chat state before leaving ---
+    saveActiveChatState();
+    // Note: In Feature 4, saveActiveChatState might just update state without clearing persona/history immediately
+
+    selectedPersona = null; // Clear selected persona *after* saving its state
+    conversationHistory = []; // Clear history *after* saving
 
     // Smooth transition back to persona selection view
     showView('persona-selection');
 
-    // Clear chatbox content when leaving chat (will change in Feature 4)
+    // Clear chatbox content when leaving chat (it's now empty due to state clear)
     chatbox.innerHTML = '';
-    conversationHistory = []; // Also clear history when going back (will change in Feature 4)
+
 
     // Disable input and send button
     userInput.disabled = true;
     sendButton.disabled = true;
 
     // Re-render the grid based on the current filter/search (if any)
-    filterAndRenderPersonas();
+    filterAndRenderPersonas(); // This will use the current state of selectedFilters and currentSearchTerm
 
      // Attempt to focus the search input after going back
     setTimeout(() => { personaSearchInput.focus(); }, 100);
@@ -741,7 +873,10 @@ const showView = (viewName) => {
 
     const allViews = document.querySelectorAll('#main-app-content .view'); // Get all direct children with class 'view' inside main content
     allViews.forEach(view => {
-        if (view.id === `${viewName}-container` || view.id === viewName) {
+        // Determine the expected ID for the view based on the name
+        const targetId = (viewName === 'chat') ? 'chat-container' : viewName; // Handles 'chat' vs 'persona-selection'
+
+        if (view.id === targetId) {
              // Use display: flex/block based on view needs, remove hidden
              view.classList.remove('hidden'); // Remove display: none
              view.setAttribute('aria-hidden', 'false');
@@ -753,9 +888,6 @@ const showView = (viewName) => {
              // If using opacity/transform transitions, ensure they are set correctly
         }
     });
-
-    // The initial setting of 'hidden' on #chat-container in HTML is fine,
-    // showView will remove/add it based on the viewName.
 };
 
 
@@ -765,6 +897,9 @@ const clearChatHistory = () => {
     if (!selectedPersona) return; // Should not happen if button is only visible in chat
 
     conversationHistory = []; // Clear the history array
+    // --- NEW: Also clear the saved chat state from session storage ---
+    saveActiveChatState(); // Calling save with empty history will clear it
+
      chatbox.innerHTML = `
         <div class="message bot-message initial-message">
             <p>Chat history cleared. Starting fresh with ${selectedPersona.name}.</p>
@@ -772,8 +907,12 @@ const clearChatHistory = () => {
      `;
      scrollToBottom();
      console.log('Chat history cleared.');
-     userInput.focus();
+     // Attempt to focus input if enabled (depends on API key status)
+     if (!userInput.disabled) {
+        userInput.focus();
+     }
      announce('Chat history cleared.');
+
 };
 
 
@@ -783,6 +922,7 @@ const sendMessageToAPI = async (personaInstruction, history, message) => {
     const finalSystemInstruction = `${personaInstruction} ${negativeInstruction}`;
 
     // Gemini expects history in a specific format
+    // The API call logic will add the *current* user message to the history we pass.
     const contents = history.map(msg => ({
         role: msg.role,
         parts: msg.parts
@@ -793,7 +933,7 @@ const sendMessageToAPI = async (personaInstruction, history, message) => {
 
      // Check API key is configured *before* fetch
      if (GOOGLE_API_KEY === '' || GOOGLE_API_KEY.length < 20 || GOOGLE_API_KEY.startsWith('YOUR')) {
-         console.error("API Key is not configured correctly.");
+         console.error("API Key is not configured correctly. Cannot send message.");
           throw new Error("API Key Error: Chat functionality is not properly configured.");
      }
 
@@ -837,7 +977,7 @@ const sendMessage = async () => {
     const messageText = userInput.value.trim();
 
     // Basic validation
-    if (!messageText || !selectedPersona || sendButton.disabled) {
+    if (!messageText || !selectedPersona || userInput.disabled) { // Check userInput.disabled instead of sendButton
         return;
     }
 
@@ -853,7 +993,8 @@ const sendMessage = async () => {
     // Add user message to history immediately
     conversationHistory.push({ role: 'user', parts: [{ text: messageText }] });
 
-    // TODO: Save state (including history) here as part of Feature 4 Persistence
+    // --- NEW: Save state (including history) after user sends message ---
+    saveActiveChatState();
 
 
     try {
@@ -866,6 +1007,7 @@ const sendMessage = async () => {
         // Our history should always end with the *last* user message before we send.
         // The API call logic will add the *current* user message to the history we pass.
         const apiData = await sendMessageToAPI(selectedPersona.instruction, conversationHistory, messageText);
+
 
         // Remove typing indicator
         const currentTypingIndicator = chatbox.querySelector('.message.bot-message.typing');
@@ -885,6 +1027,9 @@ const sendMessage = async () => {
                  if(conversationHistory.length > 0 && conversationHistory[conversationHistory.length - 1].role === 'user') {
                      conversationHistory.pop();
                  }
+                 // --- NEW: Save state after potentially removing user message ---
+                 saveActiveChatState();
+
                  botResponseText = "I'm sorry, but I cannot respond to that message due to safety guidelines. Please try rephrasing.";
                  displayBotMessage(botResponseText); // Display the safety message
                  announce("AI response blocked due to safety guidelines."); // Announce for screen readers
@@ -892,14 +1037,20 @@ const sendMessage = async () => {
                 botResponseText = apiData.candidates[0].content.parts[0].text;
                 // Add the valid bot response to history
                  // Check if the last message is already user (it should be) before pushing model
+                 // This check is important if API call fails *after* we pushed user message but *before* we get a response.
                  if(conversationHistory.length > 0 && conversationHistory[conversationHistory.length - 1].role === 'user') {
                     conversationHistory.push({ role: 'model', parts: [{ text: botResponseText }] });
                     displayBotMessage(botResponseText); // Display the bot's response
                     // Announce the first part of the bot message, or maybe the whole thing if short
-                    announce(`AI response: ${botResponseText.substring(0, 50)}...`);
+                    announce(`AI response: ${botResponseText.substring(0, Math.min(botResponseText.length, 100))}...`); // Announce a bit more text
+                    // --- NEW: Save state after adding bot response ---
+                    saveActiveChatState();
+
                  } else {
-                     console.error("History state mismatch: Expected last message to be user before adding model.");
-                      displayBotMessage('An internal error occurred processing the response.');
+                     console.error("History state mismatch: Expected last message to be user before adding model response.");
+                      displayBotMessage('An internal error occurred processing the response.'); // Display error to user
+                      announce('An internal error occurred processing the response.'); // Announce error
+                      // No need to save state here, it's an internal error, history is potentially inconsistent.
                  }
 
             } else {
@@ -908,6 +1059,9 @@ const sendMessage = async () => {
                  if(conversationHistory.length > 0 && conversationHistory[conversationHistory.length - 1].role === 'user') {
                      conversationHistory.pop(); // Remove user message because it wasn't replied to properly
                  }
+                 // --- NEW: Save state after potentially removing user message ---
+                 saveActiveChatState();
+
                  botResponseText = 'Received an invalid or empty response from the AI.';
                  displayBotMessage(botResponseText); // Display an error message
                  announce('Received an invalid or empty response from the AI.');
@@ -917,13 +1071,16 @@ const sendMessage = async () => {
              if(conversationHistory.length > 0 && conversationHistory[conversationHistory.length - 1].role === 'user') {
                  conversationHistory.pop(); // Remove user message
              }
+             // --- NEW: Save state after potentially removing user message ---
+             saveActiveChatState();
+
              botResponseText = 'Error: Could not get a valid response from the AI.';
              displayBotMessage(botResponseText); // Display an error message
              announce('Error: Could not get a valid response from the AI.');
         }
 
         scrollToBottom(); // Scroll after new message
-        // TODO: Save state (including history) here as part of Feature 4 Persistence
+
 
     } catch (error) {
         console.error('Error during chat message processing:', error);
@@ -939,7 +1096,9 @@ const sendMessage = async () => {
          if(conversationHistory.length > 0 && conversationHistory[conversationHistory.length - 1].role === 'user') {
              conversationHistory.pop();
          }
-         // TODO: Save state (including history) here, might be needed if pop happened
+         // --- NEW: Save state after potentially removing user message ---
+         saveActiveChatState();
+
 
         displayBotMessage(`Error: ${error.message || 'Failed to get AI response.'}`);
          scrollToBottom();
@@ -947,13 +1106,18 @@ const sendMessage = async () => {
 
     } finally {
          // Always re-enable input and send button unless the API key check failed globally
-         // The global API key check in DOMContentLoaded already disabled everything if key missing.
-         // If we reach here, the key was likely valid enough to attempt the fetch.
-         // Re-enable only if not locked
-         if (!body.classList.contains('locked')) {
+         // Check if unlocked AND API key is valid before re-enabling
+         if (!body.classList.contains('locked') && GOOGLE_API_KEY !== '' && GOOGLE_API_KEY.length >= 20 && !GOOGLE_API_KEY.startsWith('YOUR')) {
              userInput.disabled = false;
              sendButton.disabled = false;
-             userInput.focus(); // Put focus back
+             // Keep focus only if user hasn't navigated away or focused something else
+             if (currentState === 'chat') { // Only focus if still in the chat view
+                 userInput.focus();
+             }
+         } else if (!body.classList.contains('locked')) {
+             // If unlocked but API key is bad, input stays disabled, but maybe show a message?
+             console.warn("Chat input remains disabled after API call due to missing/invalid API key.");
+             // A persistent message about the API key might be better displayed elsewhere.
          }
     }
 };
@@ -979,11 +1143,13 @@ const displayBotMessage = (text, isTypingIndicator = false) => {
          messageElement.setAttribute('aria-label', 'AI is typing');
          // Add role="status" for automatic announcement by screen readers when it appears
          messageElement.setAttribute('role', 'status');
+         messageElement.setAttribute('aria-live', 'polite'); // Explicitly polite
     } else {
         messageElement.textContent = text;
-         // Remove aria-label and role for actual message content
+         // Remove aria-label and role for actual message content, aria-live handled by container
          messageElement.removeAttribute('aria-label');
          messageElement.removeAttribute('role');
+         messageElement.removeAttribute('aria-live');
     }
     chatbox.appendChild(messageElement);
     return messageElement; // Return element to allow removing indicator
@@ -1015,7 +1181,12 @@ const ariaStatus = createAriaStatusElement();
 
 // Function to announce text for screen readers
 const announce = (text) => {
-    ariaStatus.textContent = text;
+    // Clear previous announcement to ensure new one is read
+    ariaStatus.textContent = '';
+    // Set timeout to allow screen reader to process previous state change if any
+    setTimeout(() => {
+        ariaStatus.textContent = text;
+    }, 100);
 };
 
 
@@ -1025,6 +1196,10 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- API Key Check & Disable (Initial check, chat can still fail later) ---
      if (GOOGLE_API_KEY === '' || GOOGLE_API_KEY.length < 20 || GOOGLE_API_KEY.startsWith('YOUR')) {
         console.error("WARNING: Google AI Studio API key is not set correctly in script.js. Chat functionality will be disabled (API calls will fail). Address this security risk before deploying.");
+        // Disable chat input/send button initially if key is missing
+        userInput.disabled = true;
+        sendButton.disabled = true;
+        // Add a message to the chatbox if it's the initial state? Maybe not, it's a developer warning.
      }
 
 
@@ -1044,6 +1219,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 announce('Password input revealed.'); // Announce for a11y
                  // Optional: Hide the reveal button temporarily while password input is shown?
                  // revealPasswordButton.classList.add('hidden');
+            } else {
+                 // Optional: Announce remaining clicks if providing feedback
+                 if (UNLOCK_CLICK_THRESHOLD - unlockClickCount <= 3 && UNLOCK_CLICK_THRESHOLD - unlockClickCount > 0) { // Announce last few clicks, avoid announcing 0
+                     announce(`${UNLOCK_CLICK_THRESHOLD - unlockClickCount} clicks remaining to reveal password input.`);
+                 } else if (UNLOCK_CLICK_THRESHOLD - unlockClickCount === 0) {
+                     announce('Password input revealed.'); // Redundant, but ensures announcement on exactly 5th click
+                 }
             }
         }
          // If app is unlocked, clicks on *this specific button* are ignored (or it's hidden by CSS).
@@ -1091,9 +1273,13 @@ document.addEventListener('DOMContentLoaded', () => {
     window.addEventListener('beforeunload', () => {
         // Check if the app is currently unlocked
         if (!body.classList.contains('locked')) {
-             console.log('Window is unloading, ensuring app is locked.');
-             // Remove the session storage item directly as lockApp might not complete fully during unload
+             console.log('Window is unloading, ensuring app is locked and chat state saved.');
+             // Save the current chat state before the window unloads
+             saveActiveChatState();
+             // Remove the session storage UNLOCK item directly as lockApp might not complete fully during unload
              sessionStorage.removeItem(SESSION_STORAGE_KEY_UNLOCKED);
+        } else {
+            // If locked, ensure any pending password input state is cleared? (Maybe overkill)
         }
     });
 
@@ -1123,7 +1309,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
 
-    // --- Feature 1: Persona Filtering & Search Listeners (MODIFIED for Checkboxes) ---
+    // --- Feature 1: Persona Filtering & Search Listeners (Refactored for Multi-select AND) ---
     const filterOptionsDiv = document.querySelector('#persona-filters .filter-options');
      filterOptionsDiv.addEventListener('change', (event) => {
          // Ensure filters are only interactive when unlocked
@@ -1137,57 +1323,53 @@ document.addEventListener('DOMContentLoaded', () => {
          }
 
          if (event.target.type === 'checkbox' && event.target.name === 'persona-type') {
-             const value = event.target.value;
+             const clickedValue = event.target.value;
              const isChecked = event.target.checked;
 
-             if (value === 'all') {
+             // --- Logic to determine the NEW selectedFilters array ---
+             let tempSelectedFilters = [];
+             filterCheckboxes.forEach(checkbox => {
+                 if (checkbox.checked) {
+                     tempSelectedFilters.push(checkbox.value);
+                 }
+             });
+
+             // Special handling for the 'all' checkbox
+             if (clickedValue === 'all') {
                  if (isChecked) {
+                     // If 'all' was checked, the selection is just ['all']
                      selectedFilters = ['all'];
                  } else {
-                      // If 'all' is unchecked, and it was the *only* one selected
-                     if (selectedFilters.length === 1 && selectedFilters[0] === 'all') {
-                         selectedFilters = []; // Empty array means "show all" logically
+                     // If 'all' was unchecked, and it was the *only* thing checked,
+                     // the selection becomes empty. An empty array means "show all" in our filter logic.
+                     // If other things were *also* checked when 'all' was unchecked,
+                     // tempSelectedFilters already contains them, and the logic below will handle it.
+                     if (tempSelectedFilters.length === 0) {
+                          selectedFilters = []; // Explicitly empty if nothing is checked
+                     } else {
+                         // If 'all' was unchecked but other boxes *are* checked, keep the other boxes
+                         selectedFilters = tempSelectedFilters.filter(val => val !== 'all');
                      }
-                      // If 'all' was unchecked but other filters were already selected,
-                      // selectedFilters already holds them, which is correct.
                  }
-                 // Ensure other checkboxes match the 'all' state visually if 'all' is checked
-                 // This is handled by updateFilterCheckboxes below.
-
-
              } else { // Handling non-'all' checkboxes
                  if (isChecked) {
-                     // Add filter value, remove 'all' from list if it was present
-                     selectedFilters = selectedFilters.filter(f => f !== 'all');
-                     if (!selectedFilters.includes(value)) {
-                         selectedFilters.push(value);
-                     }
+                     // If a non-'all' is checked, remove 'all' from the logical selection
+                     selectedFilters = tempSelectedFilters.filter(val => val !== 'all');
                  } else {
-                     // Remove filter
-                     selectedFilters = selectedFilters.filter(f => f !== value);
-                 }
+                     // If a non-'all' is unchecked, just remove it from the current selection
+                     selectedFilters = selectedFilters.filter(val => val !== clickedValue);
 
-                 // After modifying non-all filters, check if *any* non-all filters are still selected in the `selectedFilters` array.
-                 const anyOtherSelectedLogic = selectedFilters.some(filterValue => filterValue !== 'all');
-
-                 if (!anyOtherSelectedLogic) {
-                     // If no non-all filters are logically selected, ensure 'all' is the only filter logically selected
-                     // Or if selectedFilters is empty [] that also means show all.
-                     if (!selectedFilters.includes('all') && selectedFilters.length !== 0) {
-                          selectedFilters = ['all'];
+                     // If unchecking this box results in NO non-'all' boxes being selected,
+                     // implicitly go back to 'all' state (empty array)
+                     const anyNonAllSelected = selectedFilters.some(val => val !== 'all');
+                     if (!anyNonAllSelected && !selectedFilters.includes('all')) {
+                           selectedFilters = []; // Stick to empty array for 'show all'
                      }
-                      // The visual checkbox state is synced by updateFilterCheckboxes
-
-                 } else {
-                      // If at least one non-all filter is logically selected, ensure 'all' is NOT logically selected
-                      selectedFilters = selectedFilters.filter(f => f !== 'all');
-                      // The visual checkbox state is synced by updateFilterCheckboxes
                  }
-
              }
 
-             // Ensure checkbox checked states match the final `selectedFilters` array logic
-             updateFilterCheckboxes(); // Use the helper function to sync UI with state
+             // After updating selectedFilters, sync the *visual* state of checkboxes
+             updateFilterCheckboxes();
 
              console.log("Selected filters:", selectedFilters); // Log state
              filterAndRenderPersonas(); // Filter and re-render the grid
@@ -1195,7 +1377,8 @@ document.addEventListener('DOMContentLoaded', () => {
               // Announce filter change - use target label text
              announce(`Filter ${event.target.nextElementSibling.textContent} ${isChecked ? 'selected' : 'deselected'}.`);
 
-             // TODO: Call saveState() here to persist selectedFilters in Step 1 JS
+             // Save the updated filter state to localStorage
+             saveState();
 
          }
      });
@@ -1211,7 +1394,11 @@ document.addEventListener('DOMContentLoaded', () => {
         currentSearchTerm = event.target.value; // Update state
         filterAndRenderPersonas(); // Filter and re-render
         // ARIA status updates handled in renderPersonaGrid
-         announce(`Search term: ${currentSearchTerm}`);
+         // Announce search input value, but keep it concise or only announce the change.
+         // Announcing on every input can be noisy for screen readers.
+         // A common pattern is to announce results after a short delay, or only announce the final search term.
+         // For now, keeping the simple announcement but noting it could be refined.
+         // announce(`Search term: ${currentSearchTerm}`);
     });
 
 
@@ -1225,7 +1412,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const clickedCard = event.target.closest('.persona-card');
         if (clickedCard && !clickedCard.disabled) {
             const personaKey = clickedCard.dataset.key;
-            const personaObject = allPersonas.find(p => p.key === personaKey); // TODO: Read from mutable persona data in Step 2
+            // TODO: In Feature 2, this should use the mutable persona data source
+            const personaObject = allPersonas.find(p => p.key === personaKey);
             if (personaObject) {
                 startChat(personaObject);
                 // TODO: Needs modification for Feature 4 (multiple chats)
@@ -1239,15 +1427,10 @@ document.addEventListener('DOMContentLoaded', () => {
     userInput.addEventListener('keypress', (event) => {
         if (event.key === 'Enter') {
             event.preventDefault();
-             if (!body.classList.contains('locked') && !sendButton.disabled) { // Check if unlocked and not disabled
+             if (!body.classList.contains('locked') && !userInput.disabled) { // Check if unlocked and input is enabled
                 sendMessage();
-             } else if (body.classList.contains('locked') && unlockSectionDiv.classList.contains('hidden')) {
-                 // Optional: If locked and password input is hidden, simulate icon click on Enter?
-                 // This provides feedback that Enter does nothing while locked.
-                  console.log("App is locked. Pressing Enter does nothing here.");
-             } else if (body.classList.contains('locked') && !unlockSectionDiv.classList.contains('hidden') && event.target.id === 'password-input') {
-                 // This case is handled by the specific passwordInput keypress listener
              }
+             // No action needed if locked or input is disabled (e.g., waiting for API response)
         }
     });
 
@@ -1256,15 +1439,12 @@ document.addEventListener('DOMContentLoaded', () => {
     clearChatButton.addEventListener('click', clearChatHistory); // TODO: Needs modification for Feature 4
 
 
-    // --- Initial State Check and Render ---
+    // --- Initial Setup ---
     // Check unlock status first. This calls lockApp() or unlockApp()
-    // unlockApp calls loadState, showView, filterAndRenderPersonas.
+    // unlockApp now handles loading chat state and showing the correct view based on state.
     checkUnlockStatus();
 
-    // Initial state of checkboxes needs to be set *after* loadState has potentially run
-    // And only if starting unlocked. This is handled in checkUnlockStatus -> unlockApp -> loadState -> updateFilterCheckboxes
-    // If starting locked, updateFilterCheckboxes is not called immediately, but will be after unlockApp runs.
+    // Initial state of chat input disabled/enabled based on API key is handled in unlockApp
+    // (called by checkUnlockStatus) and startChat.
 
 });
- 
- 
