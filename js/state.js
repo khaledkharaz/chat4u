@@ -1,12 +1,21 @@
+
 // --- State Management ---
 // Central app state object. Properties can be read and modified by other modules.
 
 export const appState = {
     // Lock/Unlock State
     unlockClickCount: 0, // Track clicks to reveal password input
+    isLocked: true, // Add a boolean flag for lock state
 
     // View State
-    currentState: 'persona-selection', // 'persona-selection' or 'chat'
+    // Reverted: Default state when unlocked will be determined by loadActiveChatState or set to 'persona-selection'
+    // It's not 'home' initially anymore. The 'home' concept is now tied to the 'locked' boolean.
+    // The state will be 'locked' *implicitly* when isLocked is true.
+    // When unlocked, the *first* view shown will be 'persona-selection' unless a chat is loaded.
+    currentState: 'persona-selection', // Default view when unlocked
+
+    // Persona Data (Mutable)
+    allPersonasMutable: [], // This will hold the dynamic list of personas
 
     // Persona Selection State (Feature 1)
     selectedFilters: [], // Array of selected filter values (default to ['all'] later)
@@ -17,9 +26,4 @@ export const appState = {
     conversationHistory: [], // Stores messages [{ role: 'user'|'model', parts: [{text: '...'}] }]
 
     // Add other state properties here as needed...
-    // e.g., saved chats list, settings, etc.
 };
-
-// Note: Direct mutation of appState.property = value is used here for simplicity.
-// For larger applications, you might use functions like setState({ prop: value })
-// or a state management library for better control and predictability.

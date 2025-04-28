@@ -1,91 +1,101 @@
-// --- Authentication Logic (Lock/Unlock) ---
 
 import {
-    body,
-    unlockSectionDiv,
+    body, // Used for body.classList for CSS
+    lockScreenDiv, // The lock screen overlay div
+    unlockSectionDiv, // Password input section
     unlockErrorMessage,
     passwordInput,
-    revealPasswordButton,
-    lockAppButton,
+    revealPasswordButton, // Reveal button
+    lockAppButton, // Lock button
     userInput, // Need to disable/enable input
     sendButton // Need to disable/enable send button
-} from '../js/domElements.js';
-import { appState } from '../js/state.js';
+} from '../js/domElements.js'; // Path changes to ../js/
+import { appState } from '../js/state.js'; // Path changes to ../js/
 import {
     UNLOCK_PASSWORD,
     UNLOCK_CLICK_THRESHOLD,
     SESSION_STORAGE_KEY_UNLOCKED
-} from '../js/config.js';
-import { saveActiveChatState, loadState, loadActiveChatState } from '../js/persistence.js'; // Need persistence functions
-import { showView } from '../ui/viewManager.js'; // Need to switch views after unlock/lock
-import { filterAndRenderPersonas } from './filtering.js'; // Need to render grid after unlock
+} from '../js/config.js'; // Path changes to ../js/
+import { saveActiveChatState, loadState, loadActiveChatState } from '../js/persistence.js'; // Path changes to ../js/
+// showView now only manages views *inside* main-app-content, not the lock overlay
+import { showView } from '../ui/viewManager.js'; // Path changes to ../ui/
+// filterAndRenderPersonas is still needed to set up the persona view after unlock
+import { filterAndRenderPersonas } from './filtering.js'; // Path remains ./ (within logic/)
 
-import { announce } from '../ui/render.js'
+import { announce } from '../js/domElements.js'; // Use announce from domElements.js as provided
+
+
 // Function to check session storage and set initial app state (locked/unlocked)
 export const checkUnlockStatus = () => {
     const isUnlocked = sessionStorage.getItem(SESSION_STORAGE_KEY_UNLOCKED) === 'true';
     if (isUnlocked) {
+        // If unlocked, transition to unlocked state views
         unlockApp(false); // Unlock without saving state again (sessionStorage already set)
-        // unlockApp now handles loading chat state and showing the correct view based on state.
     } else {
-        lockApp(false); // Lock without removing state (it's not there)
-        // App remains in locked state until unlocked
-        // No need to load chat state if locked initially
+        // If not unlocked, start in the locked state (shows lock screen overlay)
+        lockApp(false); // Set locked state without clearing session storage (it's already clear)
     }
 };
 
-// Function to set the app to locked state
+// Function to set the app to locked state (shows lock screen overlay)
 export const lockApp = (removeFromSession = true) => {
-    // --- Save active chat state before clearing ---
+    // Save active chat state before transitioning away
     saveActiveChatState();
 
+    // Update state
+    appState.isLocked = true;
+
+    // Add locked class to body (CSS hides main content, shows lock screen overlay)
     body.classList.add('locked');
-    // CSS handles visibility of #reveal-password-button and #lock-app-button
 
-    unlockSectionDiv.classList.add('hidden'); // Hide password input section
-    unlockErrorMessage.classList.add('hidden'); // Hide error message
-    passwordInput.value = ''; // Clear any input password
-    appState.unlockClickCount = 0; // Reset click count on lock
+    // Clear password input UI state (on the lock screen)
+    if (unlockSectionDiv) unlockSectionDiv.classList.add('hidden');
+    if (unlockErrorMessage) unlockErrorMessage.classList.add('hidden');
+    if (passwordInput) passwordInput.value = '';
+    appState.unlockClickCount = 0;
+    // Ensure the reveal button is visible again on the lock screen
+     if (revealPasswordButton) revealPasswordButton.classList.remove('hidden');
 
-     // Hide views within main content in case the app was unlocked briefly
-     // (This is important if you were in the chat view when locking)
-     document.querySelectorAll('#main-app-content .view').forEach(view => {
-         view.classList.add('hidden');
-         view.setAttribute('aria-hidden', 'true');
-     });
-
-     // Clear state related to the active chat and history when locking (after saving!)
+     // Clear state related to the active chat (after saving!)
      appState.selectedPersona = null;
      appState.conversationHistory = [];
-     // chatbox.innerHTML = ''; // Clearing chatbox content is handled by the viewManager or render logic when needed, maybe not strictly here.
 
-     userInput.disabled = true; // Disable input
-     sendButton.disabled = true;
+     // Disable chat input/send button when locked
+     if (userInput) userInput.disabled = true;
+     if (sendButton) sendButton.disabled = true;
+
 
     if (removeFromSession) {
         sessionStorage.removeItem(SESSION_STORAGE_KEY_UNLOCKED);
-        // We decided to keep the chat state saved in session storage upon lock,
-        // so it can be restored if the user unlocks again within the same session.
-        // It will be cleared if they clear chat or close the browser.
         console.log('App locked and unlock state removed from session storage.');
          announce('App locked.'); // Announce for screen readers
     } else {
          console.log('App is locked on load.');
     }
+    // No call to showView needed here. CSS handles showing #lock-screen based on body.locked.
+
+
      // Ensure the correct button has the correct ARIA label when locked (CSS controls visibility)
-     revealPasswordButton.setAttribute('aria-label', 'Reveal Password Input');
-     lockAppButton.setAttribute('aria-label', 'Lock App'); // Stays the same, just hidden
+     if (revealPasswordButton) revealPasswordButton.setAttribute('aria-label', 'Reveal Password Input');
+     if (lockAppButton) lockAppButton.setAttribute('aria-label', 'Lock App'); // Stays the same, just hidden by CSS when locked
 };
 
-// Function to set the app to unlocked state
+// Function to set the app to unlocked state (hides lock screen, shows main content)
 export const unlockApp = (saveStateToSession = true) => {
-    body.classList.remove('locked');
-     // CSS handles visibility of #reveal-password-button and #lock-app-button
+    // Update state
+    appState.isLocked = false;
 
-    passwordInput.value = ''; // Clear password input
-    unlockSectionDiv.classList.add('hidden'); // Hide password input section
-    unlockErrorMessage.classList.add('hidden'); // Hide error message
-    appState.unlockClickCount = 0; // Reset click count
+    // Remove locked class from body (CSS hides lock screen overlay, shows main-app-content)
+    body.classList.remove('locked');
+
+
+    // Clear password input UI state (on the lock screen)
+    if (passwordInput) passwordInput.value = '';
+    if (unlockSectionDiv) unlockSectionDiv.classList.add('hidden');
+    if (unlockErrorMessage) unlockErrorMessage.classList.add('hidden');
+    appState.unlockClickCount = 0;
+     if (revealPasswordButton) revealPasswordButton.classList.remove('hidden'); // Ensure visible if somehow hidden
+
 
     if (saveStateToSession) {
         sessionStorage.setItem(SESSION_STORAGE_KEY_UNLOCKED, 'true');
@@ -97,94 +107,90 @@ export const unlockApp = (saveStateToSession = true) => {
 
     // Load other state (filters) first
     loadState(); // Updates appState.selectedFilters
-    // The checkbox update based on loaded state is handled in main's load flow
 
     // --- Attempt to load active chat state ---
     const chatLoaded = loadActiveChatState(); // Updates appState.selectedPersona and appState.conversationHistory
 
     if (chatLoaded) {
-        showView('chat'); // Go directly to chat view if state loaded
-         // Render history after view is shown - handled in renderChatHistory
-         // Focus input after view transition - handled in startChat or logic/chat/core
+        // If chat state loaded, go directly to chat view (within main-app-content)
+        showView('chat');
+         // Focus input after view transition - handled in viewManager.showView('chat')
     } else {
-         // If no chat state loaded, go to persona selection as default
+         // If no chat state loaded, go to persona selection as default (within main-app-content)
          filterAndRenderPersonas(); // Initial render of grid based on loaded filters/search
          showView('persona-selection');
-         // Attempt to focus the search input after unlock - handled in goBackToPersonas
+         // Attempt to focus the search input after unlock - handled in viewManager.showView('persona-selection')
     }
 
      // Ensure the correct button has the correct ARIA label when unlocked (CSS controls visibility)
-     revealPasswordButton.setAttribute('aria-label', 'Reveal Password Input'); // Stays the same, just hidden
-     lockAppButton.setAttribute('aria-label', 'Lock App'); // Set label for the visible button
-
-     // API Key check: Ensure chat input is enabled ONLY if unlocked AND key is valid.
-     // This check is handled within startChat (called if a persona is selected)
-     // and sendMessage (called before API fetch). No need to enable/disable globally here.
+     if (revealPasswordButton) revealPasswordButton.setAttribute('aria-label', 'Reveal Password Input'); // Stays the same, just hidden by CSS when unlocked
+     if (lockAppButton) lockAppButton.setAttribute('aria-label', 'Lock App'); // Set label for the visible button
 };
 
 // Function to attempt unlocking with a password
 export const attemptUnlock = () => {
+    if (!passwordInput) return;
+
     const enteredPassword = passwordInput.value;
     if (enteredPassword === UNLOCK_PASSWORD) {
         unlockApp(true); // Pass true to save state to session storage
-        // unlockApp now handles loading chat state and showing the correct view
     } else {
-        unlockErrorMessage.textContent = 'Incorrect password. Try again.';
-        unlockErrorMessage.classList.remove('hidden');
-        passwordInput.value = ''; // Clear input
-         passwordInput.focus(); // Keep focus on input after failed attempt
+        if (unlockErrorMessage) {
+            unlockErrorMessage.textContent = 'Incorrect password. Try again.';
+            unlockErrorMessage.classList.remove('hidden');
+        }
+        passwordInput.value = '';
+         if (passwordInput) passwordInput.focus();
         console.warn('Incorrect password entered.');
-         announce('Incorrect password. Try again.'); // Announce error
+         announce('Incorrect password. Try again.');
     }
 };
 
-// Logic for the reveal password button click count
+// Logic for the reveal password button click count (Now on Lock Screen Overlay)
 export const handleRevealPasswordClick = () => {
-    // Only count clicks if currently in the locked state (redundant due to CSS, but safe)
-    if (body.classList.contains('locked')) {
+    // Only count clicks if currently in the locked state (lock screen overlay is visible)
+    // Use appState.isLocked for check (redundant with CSS, but safe)
+    if (appState.isLocked) {
         appState.unlockClickCount++;
-        console.log('Reveal Password icon clicked (locked), count:', appState.unlockClickCount);
+        console.log('Reveal Password icon clicked (lock screen), count:', appState.unlockClickCount);
         if (appState.unlockClickCount >= UNLOCK_CLICK_THRESHOLD) {
             appState.unlockClickCount = 0; // Reset count after threshold
-            unlockSectionDiv.classList.remove('hidden'); // Show password input section
-            passwordInput.focus(); // Focus the input field for immediate typing
-            announce('Password input revealed.'); // Announce for a11y
-             // Optional: Hide the reveal button temporarily while password input is shown?
-             // revealPasswordButton.classList.add('hidden');
+            if (unlockSectionDiv) unlockSectionDiv.classList.remove('hidden'); // Show password input section
+            // Hide the reveal button once the password input is shown
+            if (revealPasswordButton) revealPasswordButton.classList.add('hidden');
+            if (passwordInput) passwordInput.focus(); // Focus the input field for immediate typing
+            announce('Password input revealed.');
         } else {
              // Optional: Announce remaining clicks if providing feedback
-             if (UNLOCK_CLICK_THRESHOLD - appState.unlockClickCount <= 3 && UNLOCK_CLICK_THRESHOLD - appState.unlockClickCount > 0) { // Announce last few clicks, avoid announcing 0
-                 announce(`${UNLOCK_CLICK_THRESHOLD - appState.unlockClickCount} clicks remaining to reveal password input.`);
-             } else if (UNLOCK_CLICK_THRESHOLD - appState.unlockClickCount === 0) {
-                 announce('Password input revealed.'); // Redundant, but ensures announcement on exactly 5th click
+             // Only announce clicks if the password section is still hidden
+             if (unlockSectionDiv && unlockSectionDiv.classList.contains('hidden')) {
+                 if (UNLOCK_CLICK_THRESHOLD - appState.unlockClickCount <= 3 && UNLOCK_CLICK_THRESHOLD - appState.unlockClickCount > 0) {
+                     announce(`${UNLOCK_CLICK_THRESHOLD - appState.unlockClickCount} clicks remaining to reveal password input.`);
+                 } else if (UNLOCK_CLICK_THRESHOLD - appState.unlockClickCount === 0) {
+                     announce('Password input revealed.');
+                 }
              }
         }
     }
-     // If app is unlocked, clicks on *this specific button* are ignored (or it's hidden by CSS).
 };
 
 // Logic for handling auto-lock on visibility change
 export const handleVisibilityChange = () => {
     // Check if the document is hidden (user switched tabs or minimized)
     // AND the app is currently unlocked
-    if (document.hidden && !body.classList.contains('locked')) {
+    if (document.hidden && !appState.isLocked) {
         console.log('Document is hidden, auto-locking app.');
-        lockApp(true); // Lock the app and remove session storage flag
+        // lockApp(true) handles showing the lock screen overlay
+        lockApp(true);
     }
-     // If document becomes visible again, no action needed here.
-     // The next load will check sessionStorage, or it remains locked if locked.
 };
 
 // Logic for handling beforeunload (fallback/cleanup)
 export const handleBeforeUnload = () => {
     // Check if the app is currently unlocked
-    if (!body.classList.contains('locked')) {
+    if (!appState.isLocked) {
          console.log('Window is unloading, ensuring app is locked and chat state saved.');
-         // Save the current chat state before the window unloads
          saveActiveChatState();
-         // Remove the session storage UNLOCK item directly as lockApp might not complete fully during unload
          sessionStorage.removeItem(SESSION_STORAGE_KEY_UNLOCKED);
-    } else {
-        // If locked, ensure any pending password input state is cleared? (Maybe overkill)
     }
 };

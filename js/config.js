@@ -23,3 +23,6 @@ export const SESSION_STORAGE_KEY_ACTIVE_PERSONA = 'activePersonaKey'; // Key for
 export const SESSION_STORAGE_KEY_HISTORY = 'conversationHistory'; // Key for conversation history in session storage
 export const LOCAL_STORAGE_KEY_STATE = 'aiPersonaChatAppState'; // Key for localStorage for filters etc.
 export const LOCAL_STORAGE_KEY_THEME = 'theme'; // Key for theme preference
+
+// --- NEW: Persona Storage Key ---
+export const LOCAL_STORAGE_KEY_PERSONAS = 'aiPersonaChatPersonas';

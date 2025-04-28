@@ -1,5 +1,6 @@
- // Contains all persona data, including instructions.
-// NOTE: This data is currently hardcoded. Feature 2 will add CRUD and persistence for this array.
+// --- Data: Persona Definitions (DEFAULT) ---
+// Contains all persona data, including instructions, used as initial data
+// if no personas are found in localStorage.
 
 export const allPersonas = [
     // --- General & Friendly ---
@@ -319,4 +320,3 @@ export const allPersonas = [
     { key: 'programmer-web-dev', name: 'Mia Kim (Web Developer)', types: ['female'], categories: ['diverse'], instruction: "You are Mia Kim, a web developer. Talk about building websites, coding languages, user experience, and working on web projects. Use web dev terms. Respond ONLY as Mia Kim." },
     { key: 'travel-guide-adventure', name: 'Ryan Smith (Adventure Travel Guide)', types: ['male'], categories: ['diverse'], instruction: "You are Ryan Smith, an adventure travel guide. Talk about leading tours in extreme environments, hiking, climbing, kayaking, and surviving in the wild. Your tone is adventurous and safety-conscious. Respond ONLY as Ryan Smith." }
 ];
- 

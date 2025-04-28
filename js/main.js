@@ -1,7 +1,7 @@
-
 // --- Main Application Entry Point ---
 // Orchestrates initial setup and attaches event listeners.
-import { allPersonas } from './data/personas.js'// --- Data: Persona Definitions ---
+
+import { appState } from './state.js'; // Path remains ./
 
 import {
     body, // Needed for dark mode and lock check
@@ -13,125 +13,169 @@ import {
     userInput, // Chat input field
     unlockButton, // Unlock button
     passwordInput, // Password input field
-    revealPasswordButton, // Reveal password button
-    lockAppButton, // Lock app button
-    createAriaStatusElement // Ensure ARIA status element exists
-} from './domElements.js'; // Import all necessary DOM elements
-import { loadTheme, saveTheme } from './persistence.js'; // Import theme persistence
-import { applyTheme, announce, updateFilterCheckboxes } from '../ui/render.js'; // Import rendering/UI update functions
-import { startChat, goBackToPersonas, clearChatHistory } from '../ui/viewManager.js'; // Import view management functions
-import { handleRevealPasswordClick, attemptUnlock, checkUnlockStatus, lockApp, handleVisibilityChange, handleBeforeUnload } from '../logic/auth.js'; // Import auth logic
-import { handleFilterChange, handleSearchInput, filterAndRenderPersonas } from '../logic/filtering.js'; // Import filtering logic
-import { sendMessage } from '../logic/chat/core.js'; // Import core chat logic
+    revealPasswordButton, // Reveal password button (now on lock screen)
+    lockAppButton, // Lock app button (in global controls)
+    createAriaStatusElement, // Ensure ARIA status element exists
+    managePersonasButton // Button to access management view
+} from './domElements.js'; // Path remains ./
+import { loadTheme, saveTheme, loadState, loadPersonas, saveActiveChatState } from './persistence.js'; // Path remains ./, import loadPersonas, saveActiveChatState
+import { applyTheme, updateFilterCheckboxes } from '../ui/render.js'; // Path changes to ../ui/
+import { announce } from './domElements.js'; // Use announce from domElements.js as provided
+
+// showView now only manages views *inside* main-app-content
+import { startChat, goBackToPersonas, clearChatHistory, showPersonaManagementView, showView } from '../ui/viewManager.js'; // Path changes to ../ui/, import showView
+// Auth logic handles the actual locking/unlocking state transitions and showing/hiding the lock screen overlay
+import { handleRevealPasswordClick, attemptUnlock, checkUnlockStatus, lockApp, handleVisibilityChange, handleBeforeUnload } from '../logic/auth.js'; // Path changes to ../logic/
+import { handleFilterChange, handleSearchInput, filterAndRenderPersonas } from '../logic/filtering.js'; // Path changes to ../logic/
+
+import { sendMessage } from '../logic/chat/core.js'; // Path changes to ../logic/chat/
+
+import { setupPersonaManagementListeners } from '../ui/personaManagement.js'; // Path changes to ../ui/
+import { getPersonaByKey, deletePersona, savePersona } from '../logic/personaManagement.js'; // Path changes to ../logic/
 
 
 document.addEventListener('DOMContentLoaded', () => {
 
     // --- Initial Setup ---
 
-    // Ensure ARIA status element is created early
+    // Ensure ARIA status element is created early (defined in domElements.js)
     createAriaStatusElement();
 
     // Load theme preference immediately
     const savedTheme = loadTheme();
     applyTheme(savedTheme || 'light');
 
+    // NEW: Load personas from storage (or defaults)
+    loadPersonas(); // Initializes appState.allPersonasMutable
+
     // Check unlock status. This calls lockApp() or unlockApp()
-    // unlockApp now handles loading general state (filters) and chat state,
-    // and showing the correct initial view based on loaded state.
+    // lockApp shows the lock screen overlay, unlockApp loads state and shows either persona selection or chat.
     checkUnlockStatus();
 
-    // After initial load (handled by checkUnlockStatus which calls loadState),
+
+    // After initial load (handled by checkUnlockStatus which calls loadState if unlocking),
     // ensure filter checkboxes visually match the loaded state.
-    // This is called whether unlocked or not, but the filter listeners
-    // will prevent changes if locked.
+    // This needs to be called regardless of lock state initially, but filtering/rendering
+    // will only happen when the persona selection view is active.
     updateFilterCheckboxes();
 
 
     // --- Event Listeners ---
 
     // Dark Mode Toggle
-    darkModeToggle.addEventListener('click', () => {
-        const currentTheme = body.classList.contains('dark-mode') ? 'dark' : 'light';
-        const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-        applyTheme(newTheme);
-        saveTheme(newTheme); // Save preference
-         announce(`Theme switched to ${newTheme} mode.`);
-    });
+    if (darkModeToggle) { // Add defensive check
+        darkModeToggle.addEventListener('click', () => {
+            const currentTheme = body.classList.contains('dark-mode') ? 'dark' : 'light';
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            applyTheme(newTheme);
+            saveTheme(newTheme);
+             announce(`Theme switched to ${newTheme} mode.`);
+        });
+    }
+
 
     // Feature 3: Unlock/Lock Event Listeners
-    revealPasswordButton.addEventListener('click', handleRevealPasswordClick);
-    unlockButton.addEventListener('click', attemptUnlock);
-    passwordInput.addEventListener('keypress', (event) => {
-        if (event.key === 'Enter') {
-            event.preventDefault(); // Prevent default form submission
-            attemptUnlock();
-        }
-    });
-    lockAppButton.addEventListener('click', () => {
-         // Check if unlocked before locking (redundant due to CSS, but safe)
-         if (!body.classList.contains('locked')) {
-             lockApp(true); // Lock the app and remove session storage flag
-         }
-    });
 
-    // NEW: Automatic Lock Functionality Listeners
+    // Reveal Password Button (Now on Lock Screen Overlay)
+    if (revealPasswordButton) revealPasswordButton.addEventListener('click', handleRevealPasswordClick);
+
+    // Unlock Button (Inside the password section)
+    if (unlockButton) unlockButton.addEventListener('click', attemptUnlock);
+
+    // Password Input Field (Listen for Enter key)
+    if (passwordInput) {
+        passwordInput.addEventListener('keypress', (event) => {
+            if (event.key === 'Enter') {
+                event.preventDefault();
+                attemptUnlock();
+            }
+        });
+    }
+
+    // Lock App Button (Now triggers the lock screen overlay)
+    // This button is visible when the app is unlocked (via CSS)
+    if (lockAppButton) {
+        lockAppButton.addEventListener('click', () => {
+             // Check if unlocked before locking (redundant due to CSS, but safe)
+             if (!appState.isLocked) { // Use state property
+                 lockApp(true); // Lock the app and remove session storage flag, shows lock screen overlay
+             }
+        });
+    }
+
+
+    // Automatic Lock Functionality Listeners
     document.addEventListener('visibilitychange', handleVisibilityChange);
-    window.addEventListener('beforeunload', handleBeforeUnload); // Primarily for saving chat state on unload
+    window.addEventListener('beforeunload', handleBeforeUnload);
+
 
     // Feature 1: Persona Filtering & Search Listeners
-    const filterOptionsDiv = document.querySelector('#persona-filters .filter-options'); // Get container for delegation
-    if (filterOptionsDiv) { // Defensive check
+    const filterOptionsDiv = document.querySelector('#persona-filters .filter-options');
+    if (filterOptionsDiv) {
         filterOptionsDiv.addEventListener('change', handleFilterChange);
     }
-    personaSearchInput.addEventListener('input', handleSearchInput);
+    if (personaSearchInput) personaSearchInput.addEventListener('input', handleSearchInput);
 
 
     // Persona Card Click Listener (using delegation on the grid)
-    personaGridDiv.addEventListener('click', (event) => {
-         // Ensure selection is only interactive when unlocked
-         if (body.classList.contains('locked')) {
-             console.warn("Attempted to select persona while app is locked.");
-             return;
-         }
-        const clickedCard = event.target.closest('.persona-card');
-        if (clickedCard && !clickedCard.disabled) {
-            const personaKey = clickedCard.dataset.key;
-            // TODO: In Feature 2, this should use the mutable persona data source
-            const personaObject = allPersonas.find(p => p.key === personaKey);
-            if (personaObject) {
-                startChat(personaObject); // Calls viewManager function
-                // TODO: Needs modification for Feature 4 (multiple chats)
+    if (personaGridDiv) {
+        personaGridDiv.addEventListener('click', (event) => {
+             // Ensure selection is only interactive when unlocked and in the persona selection view
+             if (appState.isLocked || appState.currentState !== 'persona-selection') { // Use state properties
+                 console.warn("Attempted to select persona while app is locked or not on persona selection view.");
+                 return;
+             }
+            const clickedCard = event.target.closest('.persona-card');
+            if (clickedCard && !clickedCard.disabled) {
+                const personaKey = clickedCard.dataset.key;
+                // Find persona in the mutable list
+                const personaObject = appState.allPersonasMutable.find(p => p.key === personaKey);
+                if (personaObject) {
+                    startChat(personaObject);
+                } else {
+                     console.warn(`Clicked persona with key ${personaKey} not found in mutable list.`);
+                     announce(`Selected persona not found.`);
+                }
             }
-        }
-    });
+        });
+    }
 
 
     // Chat Input Listeners
-    sendButton.addEventListener('click', sendMessage); // Calls chat logic function
-    userInput.addEventListener('keypress', (event) => {
-        if (event.key === 'Enter') {
-            event.preventDefault();
-             // Check if unlocked and input is enabled before sending
-             if (!body.classList.contains('locked') && !userInput.disabled) {
-                sendMessage(); // Calls chat logic function
-             }
-        }
-    });
+    if (sendButton) sendButton.addEventListener('click', sendMessage);
+    if (userInput) {
+         userInput.addEventListener('keypress', (event) => {
+            if (event.key === 'Enter') {
+                event.preventDefault();
+                 // Check if unlocked and in chat view, and input is enabled before sending
+                 if (!appState.isLocked && appState.currentState === 'chat' && !userInput.disabled) { // Use state properties
+                    sendMessage();
+                 }
+            }
+        });
+    }
+
 
     // Chat Header Button Listeners
-    // These buttons live inside the chat view, should only be active when in chat
     const backToPersonasButton = document.getElementById('back-to-personas');
     const clearChatButton = document.getElementById('clear-chat');
 
-    if (backToPersonasButton) { // Defensive check
-        backToPersonasButton.addEventListener('click', goBackToPersonas); // Calls viewManager function
+    if (backToPersonasButton) {
+        backToPersonasButton.addEventListener('click', goBackToPersonas);
     }
-    if (clearChatButton) { // Defensive check
-        clearChatButton.addEventListener('click', clearChatHistory); // Calls viewManager function
+    if (clearChatButton) {
+        clearChatButton.addEventListener('click', clearChatHistory);
     }
 
-    // Initial state of chat input disabled/enabled based on API key
-    // This is handled within unlockApp and startChat.
-    // The API key check warning is logged in logic/chat/api.js
-}); 
+    // NEW: Persona Management Button Listener
+    // Listener for the button that navigates TO the management view
+    if (managePersonasButton) {
+         managePersonasButton.addEventListener('click', showPersonaManagementView); // Calls viewManager function
+    }
+
+    // NEW: Setup Listeners specific to the Persona Management View and Form
+    setupPersonaManagementListeners();
+
+    // Initial state of chat input disabled/enabled based on API key is handled within unlockApp and startChat.
+
+});

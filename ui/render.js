@@ -1,36 +1,38 @@
-// / --- UI Rendering Logic ---
+// --- UI Rendering Logic ---
 // Functions to create or update DOM elements based on data and state.
 
 import {
-    personaGridDiv,
-    chatbox,
-    filterCheckboxes,
-    createAriaStatusElement
-} from '../js/domElements.js';
- import { appState } from '../js/state.js';
+    personaGridDiv, // For rendering persona cards grid
+    chatbox, // For displaying chat messages
+    filterCheckboxes, // For updating filter checkbox state
+    createAriaStatusElement, // To create the ARIA status element if needed
+    personaManagementList, // Container for management list items
+    personaFormModal, // The form modal element
+    personaFormTitle, // Form title
+    formPersonaKey, // Form inputs
+    formPersonaName,
+    formPersonaInstruction,
+    formPersonaTypes,
+    formPersonaCategories,
+    personaForm // Need the form element itself for reset
+} from '../js/domElements.js'; // Path changes to ../js/
+
+ import { appState } from '../js/state.js'; // Path changes to ../js/
+
+import { announce } from '../js/domElements.js'; // Use announce from domElements.js as provided
 
 
-// Utility function for ARIA status announcements
-const ariaStatus = createAriaStatusElement(); // Ensure the element exists
-
-export const announce = (text) => {
-    // Clear previous announcement to ensure new one is read
-    ariaStatus.textContent = '';
-    // Set timeout to allow screen reader to process previous state change if any
-    setTimeout(() => {
-        ariaStatus.textContent = text;
-    }, 100);
-};
+// Utility function for ARIA status announcements (element creation)
+// The createAriaStatusElement function is in domElements and used by announce.
+// No need to call it or define ariaStatus here.
 
 
-// Function to create a single persona card element
+// Function to create a single persona card element (for the main selection grid)
 export const createPersonaCard = (persona) => {
-    const card = document.createElement('button'); // Use button for accessibility
+    const card = document.createElement('button');
     card.classList.add('persona-card');
-    card.dataset.key = persona.key; // Store the key on the element
+    card.dataset.key = persona.key;
 
-    // Ensure persona.types and persona.categories are arrays before mapping
-    // Combine types and categories for tag display
     const allTags = [...(persona.types || []), ...(persona.categories || [])];
     const tagsHtml = allTags.map(tag =>
          `<span class="tag">${tag.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase())}</span>`
@@ -43,112 +45,207 @@ export const createPersonaCard = (persona) => {
     return card;
 };
 
-// Function to render the grid of persona cards
+// Function to render the grid of persona cards (for the main selection view)
 export const renderPersonaGrid = (personasToDisplay) => {
-    personaGridDiv.innerHTML = ''; // Clear current grid
+    // This function is called by filterAndRenderPersonas, which checks the state.
+    // Still add defensive check for the DOM element just in case.
+    if (personaGridDiv) {
+        personaGridDiv.innerHTML = '';
 
-    // Update ARIA status - Announce results after filtering/rendering
-    let statusElement = document.getElementById('grid-status'); // Get the element created in domElements
-     if (!statusElement) {
-          statusElement = createAriaStatusElement(); // Fallback, though it should exist from domElements
-          statusElement.id = 'grid-status'; // Give it the specific ID for grid status
-     }
-
-    if (personasToDisplay.length === 0) {
-         const emptyMessage = document.createElement('p');
-         emptyMessage.classList.add('empty-grid-message');
-         emptyMessage.textContent = 'No personas match your criteria.';
-         personaGridDiv.appendChild(emptyMessage);
-         // Announce to screen readers
-         statusElement.textContent = 'No personas match your criteria.';
-
-    } else {
-         const resultCount = personasToDisplay.length;
-         const announcement = resultCount === 1 ? '1 persona found.' : `${resultCount} personas found.`;
-         statusElement.textContent = announcement; // Set announcement text
-
-
-        personasToDisplay.forEach(persona => {
-            const card = createPersonaCard(persona);
-            personaGridDiv.appendChild(card);
-        });
-    }
-};
-
-
-// Function to display a user message in the chatbox
-export const displayUserMessage = (text) => {
-    const messageElement = document.createElement('div');
-    messageElement.classList.add('message', 'user-message');
-    messageElement.textContent = text;
-    chatbox.appendChild(messageElement);
-    // No need for aria-live on individual messages if role="log" is on container
-};
-
-// Function to display a bot message in the chatbox
-export const displayBotMessage = (text, isTypingIndicator = false) => {
-    const messageElement = document.createElement('div');
-    messageElement.classList.add('message', 'bot-message');
-
-    if (isTypingIndicator) {
-        messageElement.classList.add('typing');
-         messageElement.innerHTML = '<span class="dot">.</span><span class="dot">.</span><span class="dot">.</span>';
-         // Add a descriptive aria-label for screen readers during typing
-         messageElement.setAttribute('aria-label', 'AI is typing');
-         // Add role="status" for automatic announcement by screen readers when it appears
-         messageElement.setAttribute('role', 'status');
-         messageElement.setAttribute('aria-live', 'polite'); // Explicitly polite
-    } else {
-        messageElement.textContent = text;
-         // Remove aria-label and role for actual message content, aria-live handled by container
-         messageElement.removeAttribute('aria-label');
-         messageElement.removeAttribute('role');
-         messageElement.removeAttribute('aria-live');
-    }
-    chatbox.appendChild(messageElement);
-    return messageElement; // Return element to allow removing indicator
-};
-
-// Function to scroll the chatbox to the bottom
-export const scrollToBottom = () => {
-    // Use a slight timeout to ensure DOM update happens before scrolling
-    setTimeout(() => {
-        chatbox.scrollTop = chatbox.scrollHeight;
-    }, 50);
-};
-
-
-// Helper function to render messages from history array into the chatbox
-export const renderChatHistory = (history) => {
-    chatbox.innerHTML = ''; // Clear current chatbox content
-    if (history.length === 0) {
-        // Show initial message if history is empty
-         displayBotMessage(`You are now chatting with ${appState.selectedPersona.name}. Say hello!`, false);
-    } else {
-        history.forEach(message => {
-             if (message.role === 'user') {
-                 displayUserMessage(message.parts[0].text);
-             } else if (message.role === 'model') {
-                 displayBotMessage(message.parts[0].text, false);
-             }
-        });
-    }
-    scrollToBottom(); // Scroll to the end after rendering
-};
-
-
-// Function to update filter checkboxes based on the `appState.selectedFilters` array
-export const updateFilterCheckboxes = () => {
-     filterCheckboxes.forEach(checkbox => {
-         const isSelected = appState.selectedFilters.includes(checkbox.value);
-         checkbox.checked = isSelected;
-         // Update ARIA selected state for associated label
-         const label = document.querySelector(`label[for="${checkbox.id}"]`);
-         if (label) {
-              label.setAttribute('aria-selected', isSelected ? 'true' : 'false');
+        // Update ARIA status - Announce results after filtering/rendering
+        // This element is created once in domElements.js
+        let statusElement = document.getElementById('grid-status');
+         if (!statusElement) {
+              statusElement = createAriaStatusElement();
+              statusElement.id = 'grid-status';
          }
-     });
-     // Double-check ARIA for 'all' specifically
+
+
+        if (personasToDisplay.length === 0) {
+             const emptyMessage = document.createElement('p');
+             emptyMessage.classList.add('empty-grid-message');
+             emptyMessage.textContent = 'No personas match your criteria.';
+             personaGridDiv.appendChild(emptyMessage);
+             statusElement.textContent = 'No personas match your criteria.';
+
+        } else {
+             const resultCount = personasToDisplay.length;
+             const announcement = resultCount === 1 ? '1 persona found.' : `${resultCount} personas found.`;
+             statusElement.textContent = announcement;
+
+            personasToDisplay.forEach(persona => {
+                const card = createPersonaCard(persona);
+                personaGridDiv.appendChild(card);
+            });
+        }
+    }
+};
+
+
+// --- Persona Management Rendering ---
+
+// Function to create a single persona item for the management list
+export const createManagementPersonaItem = (persona) => {
+    const item = document.createElement('div');
+    item.classList.add('management-persona-item');
+    item.dataset.key = persona.key;
+
+    const types = (persona.types || []).map(t => t.trim().replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase())).filter(t => t.length > 0).join(', ');
+    const categories = (persona.categories || []).map(c => c.trim().replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase())).filter(c => c.length > 0).join(', ');
+
+
+    item.innerHTML = `
+        <h4>${persona.name}</h4>
+        <p><strong>Key:</strong> ${persona.key}</p>
+        ${types ? `<p><strong>Types:</strong> ${types}</p>` : ''}
+        ${categories ? `<p><strong>Categories:</strong> ${categories}</p>` : ''}
+        <p class="instruction-preview">${persona.instruction.substring(0, 100)}${persona.instruction.length > 100 ? '...' : ''}</p>
+        <div class="item-actions">
+            <button class="edit-persona-button" data-key="${persona.key}" aria-label="Edit ${persona.name}">Edit</button>
+            <button class="delete-persona-button" data-key="${persona.key}" aria-label="Delete ${persona.name}">Delete</button>
+        </div>
+    `;
+    return item;
+};
+
+// Function to render the list of personas in the management view
+export const renderPersonaManagementList = (personasToDisplay) => {
+     // This function is called by showView('persona-management'), which checks the state.
+     // Still add defensive check for the DOM element just in case.
+     if (personaManagementList) {
+         personaManagementList.innerHTML = '';
+
+         if (personasToDisplay.length === 0) {
+              const emptyMessage = document.createElement('p');
+              emptyMessage.classList.add('empty-list-message');
+              emptyMessage.textContent = 'No personas added yet.';
+              personaManagementList.appendChild(emptyMessage);
+         } else {
+             personasToDisplay.forEach(persona => {
+                 const item = createManagementPersonaItem(persona);
+                 personaManagementList.appendChild(item);
+             });
+         }
+     }
+};
+
+// Function to show the persona form modal (for add/edit)
+export const showPersonaForm = (persona = null) => {
+    // This function is called by ui/personaManagement.js listeners, which check state.
+    // Still add defensive check for the DOM elements just in case.
+    if (personaFormModal && personaForm && personaFormTitle && formPersonaKey && formPersonaName && formPersonaInstruction && formPersonaTypes && formPersonaCategories) {
+        if (persona) {
+            personaFormTitle.textContent = `Edit Persona: ${persona.name}`;
+            formPersonaKey.value = persona.key;
+            formPersonaName.value = persona.name;
+            formPersonaInstruction.value = persona.instruction;
+            formPersonaTypes.value = (persona.types || []).join(', ');
+            formPersonaCategories.value = (persona.categories || []).join(', ');
+
+        } else {
+            personaFormTitle.textContent = 'Add New Persona';
+            formPersonaKey.value = '';
+            personaForm.reset();
+        }
+
+        personaFormModal.classList.remove('hidden');
+        personaFormModal.setAttribute('aria-hidden', 'false');
+        formPersonaName.focus();
+    } else {
+        console.error("Failed to show persona form: Missing DOM elements.");
+        announce("Error displaying persona form.");
+    }
+};
+
+// Function to hide the persona form modal
+export const hidePersonaForm = () => {
+    // This function is called by ui/personaManagement.js listeners.
+    // Still add defensive check for the DOM elements just in case.
+    if (personaFormModal && personaForm && formPersonaKey) {
+        personaFormModal.classList.add('hidden');
+        personaFormModal.setAttribute('aria-hidden', 'true');
+        personaForm.reset();
+        formPersonaKey.value = '';
+         // Attempt to return focus to the button that opened the modal (add or edit)
+         // This is tricky with delegation. Could add a state property to track the last focused button.
+         // For now, we won't attempt to return focus automatically on close.
+    } else {
+        console.error("Failed to hide persona form: Missing DOM elements.");
+    }
+};
+
+
+// --- Chat Rendering ---
+
+export const displayUserMessage = (text) => {
+    if (chatbox) {
+        const messageElement = document.createElement('div');
+        messageElement.classList.add('message', 'user-message');
+        messageElement.textContent = text;
+        chatbox.appendChild(messageElement);
+    }
+};
+
+export const displayBotMessage = (text, isTypingIndicator = false) => {
+    if (chatbox) {
+        const messageElement = document.createElement('div');
+        messageElement.classList.add('message', 'bot-message');
+
+        if (isTypingIndicator) {
+            messageElement.classList.add('typing');
+             messageElement.innerHTML = '<span class="dot">.</span><span class="dot">.</span><span class="dot">.</span>';
+             messageElement.setAttribute('aria-label', 'AI is typing');
+             messageElement.setAttribute('role', 'status');
+             messageElement.setAttribute('aria-live', 'polite');
+        } else {
+            messageElement.textContent = text;
+             messageElement.removeAttribute('aria-label');
+             messageElement.removeAttribute('role');
+             messageElement.removeAttribute('aria-live');
+        }
+        chatbox.appendChild(messageElement);
+        return messageElement;
+    }
+    return null;
+};
+
+export const scrollToBottom = () => {
+    if (chatbox) {
+        setTimeout(() => {
+            chatbox.scrollTop = chatbox.scrollHeight;
+        }, 50);
+    }
+};
+
+export const renderChatHistory = (history) => {
+    if (chatbox && appState.selectedPersona) {
+        chatbox.innerHTML = '';
+        if (history.length === 0) {
+             displayBotMessage(`You are now chatting with ${appState.selectedPersona.name}. Say hello!`, false);
+        } else {
+            history.forEach(message => {
+                 if (message.role === 'user') {
+                     displayUserMessage(message.parts[0].text);
+                 } else if (message.role === 'model') {
+                     displayBotMessage(message.parts[0].text, false);
+                 }
+            });
+        }
+        scrollToBottom();
+    }
+};
+
+export const updateFilterCheckboxes = () => {
+     if (filterCheckboxes) {
+         filterCheckboxes.forEach(checkbox => {
+             const isSelected = appState.selectedFilters.includes(checkbox.value);
+             checkbox.checked = isSelected;
+             const label = document.querySelector(`label[for="${checkbox.id}"]`);
+             if (label) {
+                  label.setAttribute('aria-selected', isSelected ? 'true' : 'false');
+             }
+         });
+     }
       const allCheckbox = document.getElementById('filter-all');
       const allLabel = document.querySelector('label[for="filter-all"]');
       if (allCheckbox && allLabel) {
@@ -156,17 +253,15 @@ export const updateFilterCheckboxes = () => {
       }
 };
 
-
-// Theme application logic (moved from main for better organization)
 export const applyTheme = (theme) => {
-     const body = document.body; // Use direct access here as it's specific to body class
-     const darkModeToggle = document.getElementById('dark-mode-toggle'); // Get button reference here
+     const body = document.body;
+     const darkModeToggle = document.getElementById('dark-mode-toggle');
 
     if (theme === 'dark') {
         body.classList.add('dark-mode');
-         darkModeToggle.setAttribute('aria-label', 'Toggle Light Mode');
+         if (darkModeToggle) darkModeToggle.setAttribute('aria-label', 'Toggle Light Mode');
     } else {
         body.classList.remove('dark-mode');
-         darkModeToggle.setAttribute('aria-label', 'Toggle Dark Mode');
+         if (darkModeToggle) darkModeToggle.setAttribute('aria-label', 'Toggle Dark Mode');
     }
 };
