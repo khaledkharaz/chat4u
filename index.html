@@ -13,17 +13,7 @@
 
     <!-- Global Controls (positioned via CSS) -->
     <!-- These controls should always be in the DOM, their visibility is managed by CSS based on the body.locked class -->
-    <div class="global-controls" role="group" aria-label="Global Controls">
-        <button id="dark-mode-toggle" class="icon-button theme-toggle" aria-label="Toggle Dark Mode">
-            <span class="sun-icon">☀️</span>
-            <span class="moon-icon">🌙</span>
-        </button>
-        <!-- Button to manually lock the app (visible when unlocked) -->
-        <!-- This button now triggers the lock screen overlay -->
-        <button id="lock-app-button" class="icon-button" aria-label="Lock App">
-            🔓
-        </button>
-    </div>
+   
 
 
     <!-- Lock Screen Overlay (This is the modal overlay when locked) -->
@@ -32,9 +22,9 @@
         <div class="lock-content"> <!-- Reverted class name -->
              <!-- This button reveals the password input -->
             <button id="reveal-password-button" class="icon-button large-icon" aria-label="Reveal Password Input">
-                 🔒 <!-- Using a Lock icon again -->
+                🛠️ <!-- Using a Lock icon again -->
             </button>
-            <p>Click the lock icon to unlock.</p> <!-- Original hint text -->
+            <p>Page is Under Construction.</p> <!-- Original hint text -->
 
             <!-- The password input section (initially hidden) -->
             <div id="unlock-section" class="hidden">
@@ -50,6 +40,19 @@
     <!-- This wrapper contains all the *unlocked* views -->
     <!-- It is hidden when the app is locked via CSS -->
     <div id="main-app-content">
+        <div>
+             <div class="global-controls" role="group" aria-label="Global Controls">
+        <button id="dark-mode-toggle" class="icon-button theme-toggle" aria-label="Toggle Dark Mode">
+            <span class="sun-icon">☀️</span>
+            <span class="moon-icon">🌙</span>
+        </button>
+        <!-- Button to manually lock the app (visible when unlocked) -->
+        <!-- This button now triggers the lock screen overlay -->
+        <button id="lock-app-button" class="icon-button" aria-label="Lock App">
+            🔓
+        </button>
+    </div>
+        </div>
 
         <!-- Persona Selection View -->
         <!-- Initially hidden (handled by .view.hidden) -->
