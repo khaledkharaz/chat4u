@@ -19,18 +19,18 @@ import {
     managePersonasButton // Button to access management view
 } from './domElements.js'; // Path remains ./
 import { loadTheme, saveTheme, loadState, loadPersonas, saveActiveChatState } from './persistence.js'; // Path remains ./, import loadPersonas, saveActiveChatState
-import { applyTheme, updateFilterCheckboxes } from '../ui/render.js'; // Path changes to ../ui/
+import { applyTheme, updateFilterCheckboxes } from './render.js'; // Path changes to ../ui/
 import { announce } from './domElements.js'; // Use announce from domElements.js as provided
 
 // showView now only manages views *inside* main-app-content
-import { startChat, goBackToPersonas, clearChatHistory, showPersonaManagementView, showView } from '../ui/viewManager.js'; // Path changes to ../ui/, import showView
+import { startChat, goBackToPersonas, clearChatHistory, showPersonaManagementView, showView } from './viewManager.js'; // Path changes to ../ui/, import showView
 // Auth logic handles the actual locking/unlocking state transitions and showing/hiding the lock screen overlay
 import { handleRevealPasswordClick, attemptUnlock, checkUnlockStatus, lockApp, handleVisibilityChange, handleBeforeUnload } from '../logic/auth.js'; // Path changes to ../logic/
 import { handleFilterChange, handleSearchInput, filterAndRenderPersonas } from '../logic/filtering.js'; // Path changes to ../logic/
 
-import { sendMessage } from '../logic/chat/core.js'; // Path changes to ../logic/chat/
+import { sendMessage } from '../logic/core.js'; // Path changes to ../logic/chat/
 
-import { setupPersonaManagementListeners } from '../ui/personaManagement.js'; // Path changes to ../ui/
+import { setupPersonaManagementListeners } from './personaManagementUi.js'; // Path changes to ../ui/
 import { getPersonaByKey, deletePersona, savePersona } from '../logic/personaManagement.js'; // Path changes to ../logic/
 
 

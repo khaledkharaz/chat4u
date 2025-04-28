@@ -15,11 +15,11 @@ import {
     formPersonaTypes,
     formPersonaCategories,
     personaForm // Need the form element itself for reset
-} from '../js/domElements.js'; // Path changes to ../js/
+} from './domElements.js'; // Path changes to ../js/
 
- import { appState } from '../js/state.js'; // Path changes to ../js/
+ import { appState } from './state.js'; // Path changes to ../js/
 
-import { announce } from '../js/domElements.js'; // Use announce from domElements.js as provided
+import { announce } from './domElements.js'; // Use announce from domElements.js as provided
 
 
 // Utility function for ARIA status announcements (element creation)

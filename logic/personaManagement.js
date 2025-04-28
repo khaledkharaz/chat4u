@@ -3,11 +3,11 @@
 
 import { appState } from '../js/state.js'; // Path changes to ../js/
 import { savePersonas } from '../js/persistence.js'; // Path changes to ../js/ // Need to save changes
-import { renderPersonaManagementList } from '../ui/render.js'; // Path changes to ../ui/ // Need to re-render the management list
+import { renderPersonaManagementList } from '../js/render.js'; // Path changes to ../ui/ // Need to re-render the management list
 import { announce } from '../js/domElements.js'; // Use announce from domElements.js as provided
 
 import { filterAndRenderPersonas } from './filtering.js'; // Path remains ./ (within logic/) // Need to re-render the main persona grid
-import { goBackToPersonas } from '../ui/viewManager.js'; // Path changes to ../ui/ // Might need to navigate after deleting active persona
+import { goBackToPersonas } from '../js/viewManager.js'; // Path changes to ../ui/ // Might need to navigate after deleting active persona
 
 
 // Helper to generate a simple unique key (timestamp + random)

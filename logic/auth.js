@@ -18,7 +18,7 @@ import {
 } from '../js/config.js'; // Path changes to ../js/
 import { saveActiveChatState, loadState, loadActiveChatState } from '../js/persistence.js'; // Path changes to ../js/
 // showView now only manages views *inside* main-app-content, not the lock overlay
-import { showView } from '../ui/viewManager.js'; // Path changes to ../ui/
+import { showView } from '../js/viewManager.js'; // Path changes to ../ui/
 // filterAndRenderPersonas is still needed to set up the persona view after unlock
 import { filterAndRenderPersonas } from './filtering.js'; // Path remains ./ (within logic/)
 

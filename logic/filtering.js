@@ -3,7 +3,7 @@
 
 import { appState } from '../js/state.js'; // Path changes to ../js/
 
-import { renderPersonaGrid, updateFilterCheckboxes } from '../ui/render.js'; // Path changes to ../ui/, announce is in domElements
+import { renderPersonaGrid, updateFilterCheckboxes } from '../js/render.js'; // Path changes to ../ui/, announce is in domElements
 import { announce } from '../js/domElements.js'; // Use announce from domElements.js as provided
 
 import { personaSearchInput, filterCheckboxes } from '../js/domElements.js'; // Path changes to ../js/

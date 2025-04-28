@@ -11,17 +11,17 @@ import {
     sendButton, // Send button
     chatbox // Chat messages container
     // revealPasswordButton, unlockSectionDiv etc. are not managed by showView
-} from '../js/domElements.js'; // Path changes to ../js/
- import { appState } from '../js/state.js'; // Path changes to ../js/
+} from './domElements.js'; // Path changes to ../js/
+ import { appState } from './state.js'; // Path changes to ../js/
 
-import { saveActiveChatState, loadActiveChatState } from '../js/persistence.js'; // Path changes to ../js/
+import { saveActiveChatState, loadActiveChatState } from './persistence.js'; // Path changes to ../js/
 import { renderChatHistory, displayBotMessage, scrollToBottom } from './render.js'; // Path remains ./ (within ui/)
-import { announce } from '../js/domElements.js'; // Use announce from domElements.js as provided
+import { announce } from './domElements.js'; // Use announce from domElements.js as provided
 
 import { renderPersonaManagementList } from './render.js'; // Import rendering function for management list
 
 import { filterAndRenderPersonas } from '../logic/filtering.js'; // Path changes to ../logic/
-import { GOOGLE_API_KEY } from '../js/config.js'; // Path changes to ../js/
+import { GOOGLE_API_KEY } from './config.js'; // Path changes to ../js/
 
 
 // Function to switch visible view with transition

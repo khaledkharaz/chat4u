@@ -9,7 +9,7 @@ import {
     LOCAL_STORAGE_KEY_THEME,
     LOCAL_STORAGE_KEY_PERSONAS // NEW key
 } from './config.js'; // Path remains ./
-import { allPersonas as defaultPersonas } from './data/personas.js'; // Path remains ./data/, alias import
+import { allPersonas as defaultPersonas } from './personas.js'; // Path remains ./data/, alias import
 
 import { announce } from './domElements.js'; // Use announce from domElements.js as provided
 

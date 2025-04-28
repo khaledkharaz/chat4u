@@ -3,7 +3,7 @@
 
  import { appState } from '../../../js/state.js'; // Path changes to ../../../js/
 import { userInput, sendButton, chatbox, body } from '../../../js/domElements.js'; // Path changes to ../../../js/, import body
-import { displayUserMessage, displayBotMessage, scrollToBottom } from '../../../ui/render.js'; // Path changes to ../../../ui/, announce is in domElements
+import { displayUserMessage, displayBotMessage, scrollToBottom } from '../../../js/render.js'; // Path changes to ../../../ui/, announce is in domElements
 import { announce } from '../../../js/domElements.js'; // Use announce from domElements.js as provided
 
 

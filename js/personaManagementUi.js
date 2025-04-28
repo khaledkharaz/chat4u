@@ -14,9 +14,9 @@ import {
     formPersonaTypes,
     formPersonaCategories,
     cancelFormButton // Cancel button
-} from '../js/domElements.js'; // Path changes to ../js/
+} from './domElements.js'; // Path changes to ../js/
 
-import { appState } from '../js/state.js'; // Path changes to ../js/
+import { appState } from './state.js'; // Path changes to ../js/
 
 import {
     renderPersonaManagementList, // Rendering function for the list
@@ -25,7 +25,7 @@ import {
     createManagementPersonaItem // Function to create list item HTML
 } from './render.js'; // Path remains ./ (within ui/)
 
-import { announce } from '../js/domElements.js'; // Use announce from domElements.js as provided
+import { announce } from './domElements.js'; // Use announce from domElements.js as provided
 
 import {
     savePersona, // Logic function to save persona
