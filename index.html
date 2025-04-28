@@ -4,109 +4,163 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AI Persona Chat</title>
-    <!-- Use a professional looking font -->
+    <!-- Use a professional looking font (Roboto) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
 
+    <!-- Link to your stylesheet -->
     <link rel="stylesheet" href="style.css">
 </head>
-<body>
+<!--
+  Add .locked class initially.
+  This class on the body will control the visibility of #lock-screen and #main-app-content via CSS.
+-->
+<body class="locked">
+
+    <!--
+      Header Toggle Buttons
+      These are positioned absolutely and live outside the main content wrappers
+      so they are visible regardless of whether the app is locked or unlocked.
+    -->
 
     <!-- Dark Mode Toggle Button -->
-    <!-- Positioned absolutely for more precise placement -->
     <button id="dark-mode-toggle" class="mode-toggle" aria-label="Toggle Dark Mode">
         <svg class="mode-icon sun-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
         <svg class="mode-icon moon-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
     </button>
 
+    <!--
+      Reveal Password Button (Visible only when locked - controlled by CSS)
+      This button triggers the 5-click counter. Uses a home icon.
+    -->
+    <button id="reveal-password-button" class="mode-toggle reveal-password-toggle" aria-label="Reveal Password Input">
+        <!-- Home icon SVG -->
+        <svg class="mode-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+    </button>
 
-    <div class="container">
-        <!-- Persona Selection View -->
-        <div id="persona-selection" class="view">
-            <h2>Choose your conversation partner:</h2>
+     <!--
+       Lock App Button (Visible only when unlocked - controlled by CSS)
+       This button immediately locks the app. Uses a lock icon.
+       Initially hidden using the 'hidden' class.
+     -->
+    <button id="lock-app-button" class="mode-toggle lock-app-toggle hidden" aria-label="Lock App">
+         <!-- Using a simple lock icon -->
+         <svg class="mode-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+    </button>
 
-            <!-- Filter Section -->
-            <div id="persona-filters">
-                <label>Filter by:</label>
-                <div class="filter-options" role="tablist">
-                    <!-- Keep your radio buttons as they are, styled via CSS -->
-                    <input type="radio" id="filter-all" name="persona-type" value="all" checked aria-controls="persona-grid">
-                    <label for="filter-all" role="tab" aria-selected="true">All</label>
 
-                    <input type="radio" id="filter-female" name="persona-type" value="female" aria-controls="persona-grid">
-                    <label for="filter-female" role="tab">Girls</label>
-
-                    <input type="radio" id="filter-male" name="persona-type" value="male" aria-controls="persona-grid">
-                    <label for="filter-male" role="tab">Boys</label>
-
-                     <input type="radio" id="filter-romantic" name="persona-type" value="romantic" aria-controls="persona-grid">
-                    <label for="filter-romantic" role="tab">Romantic</label>
-
-                    <input type="radio" id="filter-complex-relationship" name="persona-type" value="complex-relationship" aria-controls="persona-grid">
-                    <label for="filter-complex-relationship" role="tab">Complex</label> <!-- Shortened label -->
-
-                    <input type="radio" id="filter-professional" name="persona-type" value="professional" aria-controls="persona-grid">
-                    <label for="filter-professional" role="tab">Professional</label>
-
-                    <input type="radio" id="filter-service" name="persona-type" value="service" aria-controls="persona-grid">
-                    <label for="filter-service" role="tab">Service</label>
-
-                    <input type="radio" id="filter-beliefs" name="persona-type" value="beliefs" aria-controls="persona-grid">
-                    <label for="filter-beliefs" role="tab">Beliefs</label>
-
-                    <input type="radio" id="filter-fun" name="persona-type" value="fun" aria-controls="persona-grid">
-                    <label for="filter-fun" role="tab">Fun</label>
-
-                    <input type="radio" id="filter-anime" name="persona-type" value="anime" aria-controls="persona-grid">
-                    <label for="filter-anime" role="tab">Anime</label>
-                     <!-- Add more filter types here if needed -->
-                </div>
-            </div>
-
-            <!-- Search Input -->
-             <div class="search-area">
-                 <input type="text" id="persona-search" placeholder="Search personas...">
+    <!--
+      Locked Screen View
+      This div is shown when the app is locked. Controlled by CSS on body.locked.
+    -->
+    <div id="lock-screen">
+         <div class="lock-content">
+             <h2>Wegi App</h2>
+             <!-- Updated message -->
+             <p>App is under construction, will be developed soon.</p>
+             <!-- Password input section (initially hidden - controlled by JS) -->
+             <div id="unlock-section" class="hidden">
+                 <input type="password" id="password-input" placeholder="Enter password" aria-label="Enter password">
+                 <button id="unlock-button">Unlock</button>
+                 <p id="unlock-error-message" class="error-message hidden" aria-live="polite"></p>
              </div>
+         </div>
+    </div>
 
+    <!--
+      Main App Content
+      This div wraps your original .container and is hidden when the app is locked.
+      Controlled by CSS on body.locked.
+    -->
+    <div id="main-app-content">
+        <div class="container">
+            <!-- Persona Selection View -->
+            <!-- This view is visible by default inside main-app-content -->
+            <div id="persona-selection" class="view">
+                <h2>Choose your conversation partner:</h2>
 
-            <!-- Container for persona cards - Replaces the select dropdown -->
-            <div id="persona-grid" aria-live="polite" aria-atomic="true">
-                <!-- Persona cards will be inserted here by JavaScript -->
-                <!-- An initial loading or placeholder message can go here -->
+                <!-- Filter Section -->
+                <div id="persona-filters">
+                    <label>Filter by:</label>
+                    <div class="filter-options" role="tablist">
+                        <!--
+                          CHANGED from radio buttons to checkboxes for multi-select.
+                          The 'all' checkbox logic needs careful handling in JS.
+                          Removed 'checked' attribute - JS will set initial state based on persistence later.
+                        -->
+                        <input type="checkbox" id="filter-all" name="persona-type" value="all" aria-controls="persona-grid">
+                        <label for="filter-all" role="tab" aria-selected="false">All</label> <!-- aria-selected set false initially, JS updates -->
+
+                        <input type="checkbox" id="filter-female" name="persona-type" value="female" aria-controls="persona-grid">
+                        <label for="filter-female" role="tab" aria-selected="false">Girls</label>
+
+                        <input type="checkbox" id="filter-male" name="persona-type" value="male" aria-controls="persona-grid">
+                        <label for="filter-male" role="tab" aria-selected="false">Boys</label>
+
+                         <input type="checkbox" id="filter-romantic" name="persona-type" value="romantic" aria-controls="persona-grid">
+                        <label for="filter-romantic" role="tab" aria-selected="false">Romantic</label>
+
+                        <input type="checkbox" id="filter-complex-relationship" name="persona-type" value="complex-relationship" aria-controls="persona-grid">
+                        <label for="filter-complex-relationship" role="tab" aria-selected="false">Complex</label>
+
+                        <input type="checkbox" id="filter-professional" name="persona-type" value="professional" aria-controls="persona-grid">
+                        <label for="filter-professional" role="tab" aria-selected="false">Professional</label>
+
+                        <input type="checkbox" id="filter-service" name="persona-type" value="service" aria-controls="persona-grid">
+                        <label for="filter-service" role="tab" aria-selected="false">Service</label>
+
+                        <input type="checkbox" id="filter-beliefs" name="persona-type" value="beliefs" aria-controls="persona-grid">
+                        <label for="filter-beliefs" role="tab" aria-selected="false">Beliefs</label>
+
+                        <input type="checkbox" id="filter-fun" name="persona-type" value="fun" aria-controls="persona-grid">
+                        <label for="filter-fun" role="tab" aria-selected="false">Fun</label>
+
+                        <input type="checkbox" id="filter-anime" name="persona-type" value="anime" aria-controls="persona-grid">
+                        <label for="filter-anime" role="tab" aria-selected="false">Anime</label>
+                         <!-- Add more filter types here if needed -->
+                    </div>
+                </div>
+
+                <!-- Search Input -->
+                 <div class="search-area">
+                     <input type="text" id="persona-search" placeholder="Search personas...">
+                 </div>
+
+                <!-- Container for persona cards -->
+                <div id="persona-grid" aria-live="polite" aria-atomic="true">
+                    <!-- Persona cards will be inserted here by JavaScript -->
+                    <!-- An initial loading or placeholder message can go here -->
+                </div>
+
             </div>
 
-            <!-- The start chat button is removed as clicking a card starts the chat -->
-
-        </div>
-
-        <!-- Chat View -->
-        <div id="chat-container" class="view hidden">
-            <div id="chat-header">
-                 <button id="back-to-personas" aria-label="Back to persona selection">
-                     <!-- Simple back arrow icon -->
-                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
-                 </button>
-                <span id="current-persona"></span>
-                 <button id="clear-chat" aria-label="Clear chat history">
-                     <!-- Simple trash can icon -->
-                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
-                 </button>
-            </div>
-            <div id="chatbox" role="log" aria-live="polite" aria-atomic="false">
-                <!-- Initial welcome message or chat history goes here -->
-                 <!-- The JS will clear this and add a fresh initial message on start -->
-                 <!-- <div class="message bot-message initial-message">
-                    <p>Please select a persona to begin your chat.</p>
-                </div> -->
-            </div>
-            <div id="input-area">
-                <input type="text" id="user-input" placeholder="Type your message..." aria-label="Type your message" disabled>
-                <button id="send-button" disabled aria-label="Send message">Send</button>
+            <!-- Chat View -->
+            <!-- This view is initially hidden inside main-app-content -->
+            <div id="chat-container" class="view hidden">
+                <div id="chat-header">
+                     <button id="back-to-personas" aria-label="Back to persona selection">
+                         <!-- Simple back arrow icon -->
+                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
+                     </button>
+                    <span id="current-persona"></span>
+                     <button id="clear-chat" aria-label="Clear chat history">
+                         <!-- Simple trash can icon -->
+                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
+                     </button>
+                </div>
+                <div id="chatbox" role="log" aria-live="polite" aria-atomic="false">
+                    <!-- Chat messages go here, inserted by JavaScript -->
+                </div>
+                <div id="input-area">
+                    <input type="text" id="user-input" placeholder="Type your message..." aria-label="Type your message" disabled>
+                    <button id="send-button" disabled aria-label="Send message">Send</button>
+                </div>
             </div>
         </div>
     </div>
 
+    <!-- Link to your JavaScript file - Best placed at the end of the body -->
     <script src="script.js"></script>
 
 </body>
