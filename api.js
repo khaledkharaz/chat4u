@@ -1,7 +1,7 @@
 // --- API Call Logic ---
 // Function to send message to AI API (Direct client-side call - INSECURE!)
 
-import { GOOGLE_API_KEY, API_BASE_URL, NEGATIVE_INSTRUCTION } from '../../../js/config.js'; // Path changes to ../../../js/
+import { GOOGLE_API_KEY, API_BASE_URL, NEGATIVE_INSTRUCTION } from './config.js'; // Path changes to ./
 
 export const sendMessageToAPI = async (personaInstruction, history, message) => {
     const finalSystemInstruction = `${personaInstruction} ${NEGATIVE_INSTRUCTION}`;

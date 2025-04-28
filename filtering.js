@@ -1,13 +1,13 @@
 
 // --- Persona Filtering & Search Logic ---
 
-import { appState } from '../js/state.js'; // Path changes to ../js/
+import { appState } from './state.js'; // Path changes to ../js/
 
-import { renderPersonaGrid, updateFilterCheckboxes } from '../js/render.js'; // Path changes to ../ui/, announce is in domElements
-import { announce } from '../js/domElements.js'; // Use announce from domElements.js as provided
+import { renderPersonaGrid, updateFilterCheckboxes } from './render.js'; // Path changes to ../ui/, announce is in domElements
+import { announce } from './domElements.js'; // Use announce from domElements.js as provided
 
-import { personaSearchInput, filterCheckboxes } from '../js/domElements.js'; // Path changes to ../js/
-import { saveState } from '../js/persistence.js'; // Path changes to ../js/
+import { personaSearchInput, filterCheckboxes } from './domElements.js'; // Path changes to ../js/
+import { saveState } from './persistence.js'; // Path changes to ../js/
 
 
 // Function to filter and render personas based on current filter and search term

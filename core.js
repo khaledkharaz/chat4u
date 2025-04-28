@@ -1,15 +1,15 @@
 // --- Core Chat Logic ---
 // Handles sending messages, processing responses, and updating chat state/UI.
 
- import { appState } from '../../../js/state.js'; // Path changes to ../../../js/
-import { userInput, sendButton, chatbox, body } from '../../../js/domElements.js'; // Path changes to ../../../js/, import body
-import { displayUserMessage, displayBotMessage, scrollToBottom } from '../../../js/render.js'; // Path changes to ../../../ui/, announce is in domElements
-import { announce } from '../../../js/domElements.js'; // Use announce from domElements.js as provided
+ import { appState } from './state.js'; // Path changes to ./
+import { userInput, sendButton, chatbox, body } from './domElements.js'; // Path changes to ./, import body
+import { displayUserMessage, displayBotMessage, scrollToBottom } from './render.js'; // Path changes to ../../../ui/, announce is in domElements
+import { announce } from './domElements.js'; // Use announce from domElements.js as provided
 
 
 import { sendMessageToAPI } from './api.js'; // Path remains ./ (within chat/)
-import { saveActiveChatState } from '../../../js/persistence.js'; // Path changes to ../../../js/
-import { GOOGLE_API_KEY } from '../../../js/config.js'; // Path changes to ../../../js/
+import { saveActiveChatState } from './persistence.js'; // Path changes to ./
+import { GOOGLE_API_KEY } from './config.js'; // Path changes to ./
 
 
 export const sendMessage = async () => {

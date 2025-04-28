@@ -20,7 +20,7 @@ import { announce } from './domElements.js'; // Use announce from domElements.js
 
 import { renderPersonaManagementList } from './render.js'; // Import rendering function for management list
 
-import { filterAndRenderPersonas } from '../logic/filtering.js'; // Path changes to ../logic/
+import { filterAndRenderPersonas } from './filtering.js'; // Path changes to ../logic/
 import { GOOGLE_API_KEY } from './config.js'; // Path changes to ../js/
 
 

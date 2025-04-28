@@ -9,20 +9,20 @@ import {
     lockAppButton, // Lock button
     userInput, // Need to disable/enable input
     sendButton // Need to disable/enable send button
-} from '../js/domElements.js'; // Path changes to ../js/
-import { appState } from '../js/state.js'; // Path changes to ../js/
+} from './domElements.js'; // Path changes to ../js/
+import { appState } from './state.js'; // Path changes to ../js/
 import {
     UNLOCK_PASSWORD,
     UNLOCK_CLICK_THRESHOLD,
     SESSION_STORAGE_KEY_UNLOCKED
-} from '../js/config.js'; // Path changes to ../js/
-import { saveActiveChatState, loadState, loadActiveChatState } from '../js/persistence.js'; // Path changes to ../js/
+} from './config.js'; // Path changes to ../js/
+import { saveActiveChatState, loadState, loadActiveChatState } from './persistence.js'; // Path changes to ../js/
 // showView now only manages views *inside* main-app-content, not the lock overlay
-import { showView } from '../js/viewManager.js'; // Path changes to ../ui/
+import { showView } from './viewManager.js'; // Path changes to ../ui/
 // filterAndRenderPersonas is still needed to set up the persona view after unlock
 import { filterAndRenderPersonas } from './filtering.js'; // Path remains ./ (within logic/)
 
-import { announce } from '../js/domElements.js'; // Use announce from domElements.js as provided
+import { announce } from './domElements.js'; // Use announce from domElements.js as provided
 
 
 // Function to check session storage and set initial app state (locked/unlocked)

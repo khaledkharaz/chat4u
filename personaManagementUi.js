@@ -31,7 +31,7 @@ import {
     savePersona, // Logic function to save persona
     deletePersona, // Logic function to delete persona
     getPersonaByKey // Logic function to get persona by key
-} from '../logic/personaManagement.js'; // Path changes to ../logic/
+} from './personaManagement.js'; // Path changes to ../logic/
 
 import { showPersonaManagementView, goBackToPersonas } from './viewManager.js'; // Path remains ./ (within ui/) // Need view switching functions
 

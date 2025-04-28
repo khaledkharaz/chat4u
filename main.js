@@ -25,13 +25,13 @@ import { announce } from './domElements.js'; // Use announce from domElements.js
 // showView now only manages views *inside* main-app-content
 import { startChat, goBackToPersonas, clearChatHistory, showPersonaManagementView, showView } from './viewManager.js'; // Path changes to ../ui/, import showView
 // Auth logic handles the actual locking/unlocking state transitions and showing/hiding the lock screen overlay
-import { handleRevealPasswordClick, attemptUnlock, checkUnlockStatus, lockApp, handleVisibilityChange, handleBeforeUnload } from '../logic/auth.js'; // Path changes to ../logic/
-import { handleFilterChange, handleSearchInput, filterAndRenderPersonas } from '../logic/filtering.js'; // Path changes to ../logic/
+import { handleRevealPasswordClick, attemptUnlock, checkUnlockStatus, lockApp, handleVisibilityChange, handleBeforeUnload } from './auth.js'; // Path changes to ../logic/
+import { handleFilterChange, handleSearchInput, filterAndRenderPersonas } from './filtering.js'; // Path changes to ../logic/
 
-import { sendMessage } from '../logic/core.js'; // Path changes to ../logic/chat/
+import { sendMessage } from './core.js'; // Path changes to ../logic/chat/
 
 import { setupPersonaManagementListeners } from './personaManagementUi.js'; // Path changes to ../ui/
-import { getPersonaByKey, deletePersona, savePersona } from '../logic/personaManagement.js'; // Path changes to ../logic/
+import { getPersonaByKey, deletePersona, savePersona } from './personaManagement.js'; // Path changes to ../logic/
 
 
 document.addEventListener('DOMContentLoaded', () => {
