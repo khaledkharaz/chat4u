@@ -7,7 +7,7 @@
 // ========================================================
 
 // --- API Configuration ---
-export const GOOGLE_API_KEY = 'AIzaSyDxyKzjSP-9AmafkH67mZIKPjrinhBWtN8'; // <--- REPLACE WITH YOUR ACTUAL KEY
+export const GOOGLE_API_KEY = 'AIzaSyDFTC32n3d0HcLWcuq4h91pyLydCLK24sQ'; // <--- REPLACE WITH YOUR ACTUAL KEY
 export const API_BASE_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent';
 
 // Negative instruction to prevent revealing AI identity (always apply)

@@ -1,0 +1,775 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sweet GF AI Voice Chat Prototype</title>
+    <!-- Simple font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+
+    <!-- Embedded CSS Styles -->
+    <style>
+        /* Simple Prototype Styles */
+
+        body {
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f4f4;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start; /* Align to top */
+            min-height: 100vh;
+        }
+
+        #chat-container {
+            width: 100%;
+            max-width: 600px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            min-height: calc(100vh - 40px); /* Fill screen height minus padding */
+        }
+
+        #chat-header {
+            padding: 15px 20px;
+            background-color: #e0a8b8; /* Softer color for GF persona */
+            color: #333; /* Darker text for contrast */
+            font-weight: 600;
+            font-size: 1.1em;
+            flex-shrink: 0;
+        }
+
+        #chatbox {
+            flex-grow: 1;
+            overflow-y: auto;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            min-height: 0; /* Allow scrolling */
+        }
+
+        .message {
+            margin-bottom: 10px;
+            padding: 10px 15px;
+            border-radius: 15px;
+            max-width: 80%;
+            word-wrap: break-word;
+            line-height: 1.5;
+        }
+
+        .user-message {
+            align-self: flex-end;
+            background-color: #007bff;
+            color: white;
+            border-bottom-right-radius: 5px;
+        }
+
+        .bot-message {
+            align-self: flex-start;
+            background-color: #fce4ec; /* Light pink for GF persona */
+            color: #4a148c; /* Deep purple for contrast */
+            border-bottom-left-radius: 5px;
+        }
+
+        /* Style for initial message */
+        .message.bot-message.initial-message {
+            align-self: center;
+            text-align: center;
+            font-style: italic;
+            color: #666;
+            background-color: transparent;
+            padding: 0;
+            box-shadow: none;
+            margin-top: auto; /* Push to bottom if chatbox is large */
+            margin-bottom: 20px;
+        }
+
+
+        #input-area {
+            display: flex;
+            padding: 15px 20px;
+            border-top: 1px solid #eee;
+            background-color: #fff;
+            gap: 10px;
+            flex-shrink: 0;
+        }
+
+        #user-input {
+            flex-grow: 1;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 1em;
+             min-height: 20px; /* Make it slightly taller */
+             resize: vertical; /* Allow vertical resize only */
+             max-height: 100px; /* Limit max height */
+             overflow-y: auto; /* Add scroll if text exceeds max-height */
+        }
+
+        #input-area button {
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: 600;
+            transition: background-color 0.2s ease;
+             display: flex; /* For centering icon if needed */
+             align-items: center;
+             justify-content: center;
+             flex-shrink: 0; /* Prevent shrinking */
+             color: white; /* Default button text color */
+        }
+
+        #send-button {
+             background-color: #28a745; /* Green for send */
+        }
+        #send-button:hover:not(:disabled) {
+             background-color: #218838;
+        }
+
+        #mic-button {
+             background-color: #ffc107; /* Yellow/Orange for mic */
+             width: 40px; /* Make it square */
+             height: 40px; /* Match height */
+             padding: 8px; /* Adjust padding for icon */
+             box-sizing: border-box;
+        }
+        #mic-button:hover:not(:disabled) {
+             background-color: #e0a800;
+        }
+        /* Style for recording state */
+        #mic-button.recording {
+            background-color: #dc3545; /* Red when recording */
+            animation: pulse 1s infinite;
+        }
+        #mic-button.recording:hover {
+             background-color: #c82333;
+        }
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(220, 53, 69, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0); }
+        }
+
+
+        #input-area button:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+
+        /* No specific style for audio player needed if using browser SpeechSynthesis */
+
+
+        /* CSS for Typing Indicator Dots */
+        @keyframes blink {
+          0% { opacity: .2; }
+          20% { opacity: 1; }
+          100% { opacity: .2; }
+        }
+
+        .message.bot-message.typing {
+            background-color: #fce4ec; /* Light pink for typing indicator */
+            color: #4a148c; /* Deep purple */
+            font-size: 1.2em;
+            width: auto;
+            padding: 10px 15px;
+            border-bottom-left-radius: 5px;
+            box-shadow: none;
+            display: inline-flex; /* Use flex to align dots */
+            align-items: center;
+            justify-content: center;
+            line-height: 1;
+        }
+
+        .message.bot-message.typing .dot {
+          animation: blink 1.4s infinite steps(1);
+          animation-fill-mode: both;
+          color: #880e4f; /* Darker pink/purple for dots */
+          display: inline-block;
+          width: 6px;
+          height: 6px;
+          margin: 0 2px; /* Increased space for visibility */
+          background-color: currentColor;
+          border-radius: 50%;
+          vertical-align: middle;
+        }
+
+        .message.bot-message.typing .dot:nth-child(1) { animation-delay: .0s; }
+        .message.bot-message.typing .dot:nth-child(2) { animation-delay: .2s; }
+        .message.bot-message.typing .dot:nth-child(3) { animation-delay: .4s; }
+
+    </style>
+</head>
+<body>
+
+    <div id="chat-container">
+        <div id="chat-header">
+            <span id="current-persona-name">Sweet Girlfriend Prototype</span> <!-- Updated persona name -->
+        </div>
+        <div id="chatbox">
+            <!-- Messages will be inserted here by JavaScript -->
+             <div class="message bot-message initial-message">
+                 <p>Hello! I am your sweet girlfriend. You can type or record a message. I'll reply to you!</p>
+             </div>
+        </div>
+        <div id="input-area">
+            <input type="text" id="user-input" placeholder="Type your message..." aria-label="Type your message">
+            <button id="send-button" aria-label="Send message">Send</button>
+             <!-- Microphone button -->
+             <button id="mic-button" aria-label="Record voice message">
+                 <!-- Simple Microphone Icon SVG -->
+                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="2" width="6" height="11" rx="3"></rect><path d="M5 10v3a7 7 0 0 0 14 0v-3"></path><line x1="12" y1="19" x2="12" y2="22"></line></svg>
+             </button>
+        </div>
+    </div>
+
+    <!-- Embedded JavaScript Logic -->
+    <script>
+        // !!! IMPORTANT SECURITY WARNING !!!
+        // Placing the Google AI Studio API key directly in frontend code
+        // is EXTREMELY INSECURE. Anyone can view your page source and steal this key,
+        // leading to unauthorized usage and potential costs/account suspension.
+        // This is done here ONLY for a simplified prototype as requested.
+        // FOR PRODUCTION, ALWAYS use a backend server to handle ALL API calls.
+        // ==============================================================
+          const GOOGLE_AI_STUDIO_API_KEY = ''; // <--- REPLACE WITH YOUR ACTUAL KEY
+
+        // const GOOGLE_AI_STUDIO_API_KEY = 'YOUR_GEMINI_API_KEY'; // <--- REPLACE with your actual Gemini API Key
+        const GEMINI_API_BASE_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent';
+
+
+        // --- Hardcoded Persona Definition ---
+        const prototypePersona = {
+            name: 'Sweet Girlfriend', // Updated internal name
+            instruction: "You are the user's sweet, affectionate, and caring girlfriend. Use warm, loving language and express fondness. Respond concisely and kindly. **IMPORTANT: The text you generate will be read aloud by a text-to-speech system. Ensure your response sounds natural and pleasant when spoken. Avoid overly complex sentences, unusual punctuation, or formatting that would sound awkward in audio. Avoid using emojis in the text you generate.** Respond ONLY as the ${prototypePersona.name} Persona."
+            // Updated instruction with guidance to avoid emojis.
+        };
+        const negativeInstruction = `Absolutely do NOT mention that you are an AI, a bot, a large language model, a machine, a computer program, artificial intelligence, or anything similar. Do not break character or refer to yourself as anything other than the ${prototypePersona.name} Persona.`;
+        const finalSystemInstruction = `${prototypePersona.instruction} ${negativeInstruction}`;
+
+
+        // --- DOM Elements ---
+        const chatbox = document.getElementById('chatbox');
+        const userInput = document.getElementById('user-input');
+        const sendButton = document.getElementById('send-button');
+        const micButton = document.getElementById('mic-button');
+        const personaNameSpan = document.getElementById('current-persona-name'); // Still useful reference
+
+
+        // --- State Management ---
+        let conversationHistory = []; // Stores messages in the format [{ role: 'user'|'model', parts: [{text: '...'}] }]
+        let isRecording = false;
+        let speechRecognition; // For Browser STT
+        let isProcessingMessage = false; // Flag to prevent sending multiple messages at once
+
+        // For Browser TTS
+        const speechSynthesis = window.speechSynthesis; // Get the browser's speech synthesis object
+        const speechUtterance = new SpeechSynthesisUtterance(); // Create a reusable utterance object
+        let sweetGirlVoice = null; // Variable to store the selected voice
+
+
+        // --- Helper Functions (DOM Manipulation) ---
+        // Simple display for user message (text only, even if from voice)
+        const displayUserMessage = (text) => {
+            const messageElement = document.createElement('div');
+            messageElement.classList.add('message', 'user-message');
+            messageElement.textContent = text;
+            chatbox.appendChild(messageElement);
+            scrollToBottom();
+        };
+
+        // Display bot message (text, and will trigger speaking)
+        const displayBotMessage = (text, isTypingIndicator = false) => {
+            const messageElement = document.createElement('div');
+            messageElement.classList.add('message', 'bot-message');
+
+            if (isTypingIndicator) {
+                messageElement.classList.add('typing');
+                messageElement.innerHTML = '<span class="dot">.</span><span class="dot">.</span><span class="dot">.</span>';
+                 messageElement.setAttribute('aria-label', 'AI is typing');
+                 messageElement.setAttribute('role', 'status');
+                 messageElement.setAttribute('aria-live', 'polite');
+            } else {
+                messageElement.textContent = text;
+                 messageElement.removeAttribute('aria-label');
+                 messageElement.removeAttribute('role');
+                 messageElement.removeAttribute('aria-live');
+
+                // Automatically speak the bot's response text
+                speakText(text); // Speak the text using the selected voice
+            }
+
+            chatbox.appendChild(messageElement);
+            scrollToBottom();
+            return messageElement; // Return element to allow removing typing indicator
+        };
+
+
+        const scrollToBottom = () => {
+            setTimeout(() => {
+                chatbox.scrollTop = chatbox.scrollHeight;
+            }, 50);
+        };
+
+
+        // --- Browser Speech API Functions ---
+
+        // Function to speak text using browser TTS
+        const speakText = (text) => {
+            if (!speechSynthesis) {
+                console.warn("Speech Synthesis not supported in this browser.");
+                return;
+            }
+            // Cancel any previous speech
+            speechSynthesis.cancel();
+
+            // --- NEW: Remove emojis before speaking ---
+            // This regex removes a broad range of common emojis
+            const emojiRegex = /[\u{1F600}-\u{1F64F}\u{1F300}-\u{1F5FF}\u{1F680}-\u{1F6FF}\u{1F000}-\u{1F02F}\u{2600}-\u{26FF}\u{2700}-\u{27BF}\u{FE00}-\u{FE0F}\u{1F900}-\u{1F9FF}\u{200D}]/gu;
+            const textWithoutEmojis = text.replace(emojiRegex, '').trim();
+
+            if (!textWithoutEmojis) {
+                 console.log("Text contains only emojis or is empty after removal, not speaking.");
+                 return; // Don't speak if there's no text left
+            }
+
+            speechUtterance.text = textWithoutEmojis; // Use the text without emojis
+
+            // Set the voice if one was successfully selected on load
+            if (sweetGirlVoice) {
+                 speechUtterance.voice = sweetGirlVoice;
+                 console.log("Using selected voice:", sweetGirlVoice.name);
+            } else {
+                 console.log("Using default voice.");
+            }
+
+            // Optional: Set pitch/rate if desired
+            // speechUtterance.pitch = 1; // 0 to 2, 1 is default
+            // speechUtterance.rate = 1; // 0.1 to 10, 1 is default
+
+            speechSynthesis.speak(speechUtterance);
+            console.log("Speaking bot response...");
+        };
+
+        // Function to select a suitable voice on load
+        const selectSweetGirlVoice = () => {
+             const voices = speechSynthesis.getVoices();
+             console.log("Available voices:", voices); // Log all voices so you can see options on your system
+
+             // Try to find a female voice, prioritizing certain names or characteristics
+             let foundVoice = null;
+
+             // Prioritize names that often sound natural or "sweet" (highly subjective and locale dependent)
+             const preferredNames = [
+                'Google US English', // Often a good, standard voice (check exact name on your system)
+                'Samantha', // Common iOS name
+                'Zira',     // Common Windows name
+                'Ava',      // Common iOS name
+                'Nova',     // Often sounds pleasant, might be in OS voices
+                'Fable',    // OpenAI name, sometimes used in OS demos
+                'Alloy'     // OpenAI name
+                // Add other names you might find on your OS/Browser by checking the console.log output
+             ];
+
+             // First pass: Look for preferred names that are explicitly female or don't include 'male'
+             for (const name of preferredNames) {
+                 foundVoice = voices.find(voice =>
+                     voice.lang.startsWith('en') && // Must be an English voice
+                     (voice.gender === 'female' || !voice.name.toLowerCase().includes('male')) && // Prefer female gender or names without 'male'
+                     voice.name.includes(name) // Match the preferred name string
+                 );
+                 if (foundVoice) break; // Found a preferred name match
+             }
+
+             // Fallback 1: Find any voice with a preferred name string, if the above failed
+              if (!foundVoice) {
+                   for (const name of preferredNames) {
+                       foundVoice = voices.find(voice =>
+                           voice.lang.startsWith('en') && // Must be English
+                           voice.name.includes(name) // Match the preferred name string
+                       );
+                       if (foundVoice) break; // Found a preferred name match
+                   }
+              }
+
+
+             // Fallback 2: Find any English female voice by gender property (if available)
+             if (!foundVoice) {
+                  foundVoice = voices.find(voice =>
+                     voice.lang.startsWith('en') &&
+                     voice.gender === 'female' // Look for explicit female gender
+                 );
+             }
+
+            // Fallback 3: Find any English voice that isn't explicitly male or child-like
+            if (!foundVoice) {
+                foundVoice = voices.find(voice =>
+                    voice.lang.startsWith('en') &&
+                    !voice.name.includes(' criança') && // Exclude child voices (Portuguese example)
+                    !voice.name.toLowerCase().includes('child') && // Exclude child voices (English example)
+                    !voice.name.toLowerCase().includes('male') // Exclude explicitly male voices
+                );
+            }
+
+
+             // Final fallback: Just use the first available English voice
+             if (!foundVoice) {
+                 foundVoice = voices.find(voice => voice.lang.startsWith('en'));
+             }
+
+             // If still no English voice, just use the first voice available in the list
+             if (!foundVoice && voices.length > 0) {
+                 foundVoice = voices[0];
+             }
+
+
+             if (foundVoice) {
+                 sweetGirlVoice = foundVoice;
+                 console.log("Selected voice for bot:", sweetGirlVoice.name, sweetGirlVoice); // Log the selected voice object
+             } else {
+                 console.warn("Could not find a suitable English voice. Using default browser voice.");
+                 // sweetGirlVoice remains null, speakText will use default
+             }
+        };
+
+        // Function to start browser STT
+        const startListening = () => {
+            if (isRecording || isProcessingMessage) return;
+
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            if (!SpeechRecognition) {
+                console.warn("Speech Recognition not supported in this browser.");
+                alert("Voice input is not supported in your browser.");
+                micButton.disabled = true;
+                return;
+            }
+
+            // Cancel any ongoing speech before listening
+            if (speechSynthesis.speaking) {
+                speechSynthesis.cancel();
+            }
+
+
+            isRecording = true;
+            micButton.classList.add('recording');
+            sendButton.disabled = true;
+            userInput.disabled = true;
+            userInput.placeholder = "Listening...";
+            console.log("Listening started...");
+
+            speechRecognition = new SpeechRecognition();
+            speechRecognition.lang = 'en-US'; // Set language (adjust as needed)
+            speechRecognition.interimResults = false; // Get final results only
+            speechRecognition.maxAlternatives = 1; // Get only the most likely result
+
+            // Clear input field when listening starts, so the transcribed text appears there
+            userInput.value = '';
+
+            speechRecognition.onstart = () => {
+                isRecording = true;
+                micButton.classList.add('recording');
+                userInput.placeholder = "Listening...";
+            };
+
+            speechRecognition.onresult = (event) => {
+                const transcript = event.results[0][0].transcript;
+                console.log("Speech Recognition Result:", transcript);
+                userInput.value = transcript; // Put transcribed text in input field
+                // Note: handleUserInput will be called in onend if transcript is not empty
+            };
+
+            speechRecognition.onerror = (event) => {
+                console.error('Speech Recognition Error:', event.error);
+                // Stop recording state and reset UI happens in onend
+                let errorMessage = 'Speech recognition error.';
+                if (event.error === 'no-speech') {
+                     errorMessage = 'No speech detected. Please try again.';
+                     // If no speech, clear the input field just in case
+                     userInput.value = '';
+                } else if (event.error === 'not-allowed') {
+                     errorMessage = 'Microphone access denied. Please allow microphone access in your browser settings.';
+                } else if (event.error === 'network') {
+                     errorMessage = 'Network error during speech recognition.';
+                } else if (event.error === 'bad-grammar') {
+                     errorMessage = 'Speech recognition error: Bad grammar.';
+                } else if (event.error === 'language-not-supported') {
+                     errorMessage = 'Speech recognition error: Language not supported.';
+                } else {
+                    errorMessage = `Speech recognition error: ${event.error}`;
+                }
+                alert(errorMessage);
+            };
+
+            speechRecognition.onend = () => {
+                console.log("Listening stopped.");
+                isRecording = false; // Reset state immediately
+                micButton.classList.remove('recording'); // Reset UI immediately
+
+                 // If we got a result (text in input) and not already processing, send it.
+                 // If no result (input is empty) and not processing, just re-enable UI.
+                 if (userInput.value.trim() && !isProcessingMessage) {
+                     handleUserInput(userInput.value); // Send the transcribed text
+                 } else if (!isProcessingMessage) {
+                      // If no text was transcribed or input was empty after transcription, just re-enable UI
+                      userInput.disabled = false;
+                      sendButton.disabled = false;
+                      micButton.disabled = false;
+                      userInput.placeholder = "Type your message...";
+                      userInput.focus();
+                 }
+            };
+
+            speechRecognition.start();
+        };
+
+        // Function to stop browser STT
+        const stopListening = () => {
+            if (!isRecording || !speechRecognition) return;
+
+            speechRecognition.stop(); // This triggers the onend event where final handling occurs
+            console.log("Attempting to stop listening...");
+            // UI state reset is handled in onend
+        };
+
+
+        // --- API Call Function (Gemini) ---
+
+        // Function to send text to the AI model (Gemini)
+        const sendTextToGeminiAPI = async (history) => {
+             // --- SECURITY WARNING: API Key embedded ---
+             if (GOOGLE_AI_STUDIO_API_KEY === 'YOUR_GEMINI_API_KEY' || GOOGLE_AI_STUDIO_API_KEY.length < 20) {
+                 console.error("Gemini API Key not configured. Cannot send message.");
+                 throw new Error("Gemini API Key Error: Please configure your API key.");
+             }
+
+            const apiRequestBody = {
+                // Pass the full conversation history
+                contents: history, // Use the history array directly
+                systemInstruction: { parts: [{ text: finalSystemInstruction }] },
+                 generationConfig: { temperature: 0.7, topP: 0.95, topK: 40 } // Example tuning
+            };
+
+            const apiResponse = await fetch(`${GEMINI_API_BASE_URL}?key=${GOOGLE_AI_STUDIO_API_KEY}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(apiRequestBody),
+            });
+
+            if (!apiResponse.ok) {
+                const errorBody = await apiResponse.json().catch(() => ({ error: { message: 'Unknown API Error' } }));
+                const errorMessage = errorBody.error?.message || apiResponse.statusText;
+                console.error(`Gemini API Error: ${apiResponse.status} - ${errorMessage}`, errorBody);
+                throw new Error(`Gemini API Error: ${apiResponse.status} - ${errorMessage}`);
+            }
+
+            const apiData = await apiResponse.json();
+            return apiData; // Return the raw API response data
+        };
+
+
+        // --- Main Message Handling Logic ---
+
+        // Handles sending user text input (string) - Called directly for text, or from STT onend for voice
+        const handleUserInput = async (userText) => {
+            userText = userText.trim();
+            // Check against isProcessingMessage at the very start
+            if (isProcessingMessage) {
+                 console.warn("Already processing a message, ignoring new input.");
+                 return;
+            }
+             // If input is empty after trimming, just reset UI if needed and exit
+             if (!userText) {
+                 console.log("Empty message, ignoring.");
+                  // Ensure UI is not disabled if the only input was empty
+                  if (!isProcessingMessage) { // This check is technically redundant if handled at function start
+                       userInput.disabled = false;
+                       sendButton.disabled = false;
+                       micButton.disabled = false;
+                       userInput.placeholder = "Type your message...";
+                       userInput.focus();
+                  }
+                 return;
+             }
+
+
+            isProcessingMessage = true; // Set processing flag early
+            // Disable UI elements
+            userInput.disabled = true;
+            sendButton.disabled = true;
+            micButton.disabled = true;
+            userInput.placeholder = "Sending..."; // Update placeholder
+
+
+            displayUserMessage(userText); // Display user's message
+
+
+            // Add user message text to history
+            conversationHistory.push({ role: 'user', parts: [{ text: userText }] });
+             console.log("User message added to history:", userText);
+             console.log("Current History (before AI call):", conversationHistory);
+
+
+            // Display typing indicator for bot response
+            const typingIndicator = displayBotMessage("...", null, true);
+
+
+            try {
+                // Send the updated history to Gemini
+                console.log("Sending history to Gemini...");
+                const geminiResponse = await sendTextToGeminiAPI(conversationHistory);
+
+
+                // Process Gemini's text response
+                let botResponseText = '';
+                if (geminiResponse.candidates && geminiResponse.candidates[0] && geminiResponse.candidates[0].content && geminiResponse.candidates[0].content.parts && geminiResponse.candidates[0].content.parts[0] && geminiResponse.candidates[0].content.parts[0].text) {
+                    botResponseText = geminiResponse.candidates[0].content.parts[0].text;
+                    console.log("Gemini Response:", botResponseText);
+
+                    // Remove typing indicator before displaying final message
+                    if (typingIndicator && typingIndicator.parentNode === chatbox) {
+                        chatbox.removeChild(typingIndicator);
+                    }
+
+                    // Display bot's text message and speak it
+                    displayBotMessage(botResponseText, null, false); // speakText is called inside
+
+
+                     // Add bot response text to history
+                     conversationHistory.push({ role: 'model', parts: [{ text: botResponseText }] });
+                     console.log("Bot message added to history:", botResponseText);
+                     console.log("Updated History:", conversationHistory);
+
+                } else if (geminiResponse.candidates && geminiResponse.candidates[0] && geminiResponse.candidates[0].finishReason === 'SAFETY') {
+                     console.warn('Gemini response blocked due to safety settings:', geminiResponse.candidates[0].safetyRatings);
+                     botResponseText = "I'm sorry, but I cannot respond to that message due to safety guidelines. Please try rephrasing.";
+
+                     if (typingIndicator && typingIndicator.parentNode === chatbox) { chatbox.removeChild(typingIndicator); }
+                     displayBotMessage(botResponseText, null, false);
+
+                     // Remove the user's last message from history as it was blocked
+                     if(conversationHistory.length > 0 && conversationHistory[conversationHistory.length - 1].role === 'user') {
+                         conversationHistory.pop();
+                     }
+                     console.log("User message removed from history due to safety block.");
+
+                } else {
+                     console.error('Unexpected Gemini API response structure or empty candidates:', geminiResponse);
+                      botResponseText = 'Received an invalid or empty response from the AI.';
+
+                      if (typingIndicator && typingIndicator.parentNode === chatbox) { chatbox.removeChild(typingIndicator); }
+                      displayBotMessage(botResponseText, null, false);
+
+                     if(conversationHistory.length > 0 && conversationHistory[conversationHistory.length - 1].role === 'user') { conversationHistory.pop(); }
+                     console.log("User message removed from history due to invalid AI response.");
+                }
+
+            } catch (error) {
+                console.error('Error processing message:', error);
+
+                const currentTypingIndicator = chatbox.querySelector('.message.bot-message.typing');
+                if (currentTypingIndicator) { chatbox.removeChild(currentTypingIndicator); }
+
+                 displayBotMessage(`Error: ${error.message || 'An error occurred.'}`, null, false);
+
+                 // Remove the user's last message from history if it led to an error after being added
+                 if(conversationHistory.length > 0 && conversationHistory[conversationHistory.length - 1].role === 'user') {
+                     conversationHistory.pop();
+                     console.log("User message removed from history due to processing error.");
+                 }
+
+            } finally {
+                // Always re-enable input elements after processing finishes
+                userInput.disabled = false;
+                sendButton.disabled = false;
+                micButton.disabled = false;
+                userInput.value = '';
+                userInput.placeholder = "Type your message..."; // Reset placeholder
+                userInput.focus();
+                isProcessingMessage = false; // Reset processing flag
+            }
+        };
+
+
+        // --- Event Listeners ---
+        document.addEventListener('DOMContentLoaded', () => {
+
+            // Check if necessary APIs are available and keys are configured
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            const speechSynthesisSupported = 'speechSynthesis' in window;
+
+            let geminiKeyConfigured = !(GOOGLE_AI_STUDIO_API_KEY === 'YOUR_GEMINI_API_KEY' || GOOGLE_AI_STUDIO_API_KEY.length < 20);
+
+            if (!geminiKeyConfigured) {
+                console.error("WARNING: Gemini API Key is not configured. Text and voice chat functionality will be disabled.");
+                userInput.disabled = true;
+                sendButton.disabled = true;
+                micButton.disabled = true; // Disable mic as well if Gemini is down
+                displayBotMessage("Error: Gemini API Key is not configured. Chat disabled.", null, false);
+            } else {
+                 // Gemini is configured, proceed with checking browser audio APIs
+
+                 if (!SpeechRecognition) {
+                      console.warn("WARNING: Browser Speech Recognition (STT) is not supported. Voice input will be disabled.");
+                      micButton.disabled = true;
+                      displayBotMessage("Warning: Your browser does not support voice input. Text chat still works.", null, false);
+                 } else {
+                      // Add listeners for mic button if STT is supported
+                      // Using mousedown/mouseup for press-and-hold interaction
+                      micButton.addEventListener('mousedown', startListening);
+                      micButton.addEventListener('mouseup', stopListening);
+                       // Add touchend listener for mobile compatibility
+                      micButton.addEventListener('touchend', (event) => {
+                          event.preventDefault(); // Prevent mouse events from firing after touch
+                          stopListening();
+                      });
+                       // Add a click listener fallback for toggle behavior if preferred
+                      // micButton.addEventListener('click', () => { if (!isRecording && !isProcessingMessage) startListening(); else if (isRecording) stopListening(); });
+                 }
+
+                 if (!speechSynthesisSupported) {
+                      console.warn("WARNING: Browser Speech Synthesis (TTS) is not supported. Audio replies will not play.");
+                       // No need to disable UI, messages will just appear as text
+                      displayBotMessage("Warning: Your browser does not support speaking text aloud. Replies will only appear as text.", null, false);
+                 } else {
+                     // Get voices and select one. Need to handle async loading.
+                     // voiceschanged event fires when voices are loaded (may be immediately or after a delay)
+                     speechSynthesis.onvoiceschanged = selectSweetGirlVoice;
+                     // Call it immediately just in case voices are already loaded
+                     selectSweetGirlVoice();
+                 }
+            }
+
+
+            // Send button click
+            sendButton.addEventListener('click', () => {
+                // Check if text input is enabled and not currently processing another message
+                if (!userInput.disabled && !isProcessingMessage) {
+                    handleUserInput(userInput.value);
+                }
+            });
+
+            // Send on Enter keypress in input field
+            userInput.addEventListener('keypress', (event) => {
+                if (event.key === 'Enter') {
+                    event.preventDefault(); // Prevent default form submission/newline
+                     if (!userInput.disabled && !isProcessingMessage) {
+                        handleUserInput(userInput.value);
+                     }
+                }
+            });
+
+            // Initial welcome message handled by HTML
+
+        });
+    </script>
+
+</body>
+</html>
