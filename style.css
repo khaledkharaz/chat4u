@@ -884,3 +884,56 @@ body.dark-mode #cancel-form-button {
 body.dark-mode #cancel-form-button:hover {
      background-color: #495057;
 }
+/* Basic styling for the container */
+.api-key-container {
+    margin: 15px 0;
+    /* Add padding, border, etc. if needed */
+  }
+  
+  /* Style for the trigger icon */
+  .api-key-trigger {
+    cursor: pointer; /* Indicates it's clickable */
+    display: inline-block; /* Allows margin/padding */
+    margin-bottom: 10px; /* Space between icon and section */
+    font-size: 1.5em; /* Make the icon a bit larger */
+    /* Add any other desired icon styles */
+  }
+  
+  /* Style for the collapsible section */
+  .api-key-section {
+    border: 1px solid #ccc;
+    padding: 15px;
+    border-radius: 5px;
+    background-color: #f9f9f9;
+    /* Initial state is handled by the 'hidden' class below */
+  }
+  
+  /* Style for the input field */
+  .api-key-section input[type="text"] {
+    width: calc(100% - 22px); /* Adjust width considering padding/border */
+    padding: 10px;
+    margin-bottom: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box; /* Include padding and border in the element's total width and height */
+  }
+  
+  /* Style for the save button */
+  .api-key-section button {
+    padding: 10px 15px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 1em;
+  }
+  
+  .api-key-section button:hover {
+    background-color: #0056b3;
+  }
+  
+  /* Class to hide the section (used by JavaScript) */
+  .api-key-section.hidden {
+    display: none;
+  }

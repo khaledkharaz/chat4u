@@ -173,6 +173,96 @@ document.addEventListener('DOMContentLoaded', () => {
          managePersonasButton.addEventListener('click', showPersonaManagementView); // Calls viewManager function
     }
 
+         const apiKeyTrigger = document.getElementById('api-key-trigger');
+        const apiKeySection = document.getElementById('api-key-section');
+        const apiKeyInput = document.getElementById('api-key-input');
+        const saveApiKeyButton = document.getElementById('save-api-key-button');
+      
+        // --- Cookie Handling Functions ---
+        // Simple functions to get and set cookies
+      
+        function setCookie(name, value, days) {
+          let expires = "";
+          if (days) {
+            const date = new Date();
+            date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+            expires = "; expires=" + date.toUTCString();
+          }
+          document.cookie = name + "=" + (value || "") + expires + "; path=/";
+        }
+      
+        function getCookie(name) {
+          const nameEQ = name + "=";
+          const ca = document.cookie.split(';');
+          for(let i = 0; i < ca.length; i++) {
+            let c = ca[i];
+            while (c.charAt(0) === ' ') c = c.substring(1, c.length);
+            if (c.indexOf(nameEQ) === 0) return c.substring(nameEQ.length, c.length);
+          }
+          return null;
+        }
+      
+        // --- Component Logic ---
+      
+        // 1. Load API key from cookie when the page loads (optional - good for showing existing key)
+        //    NOTE: The section is hidden initially. The key is loaded into the INPUT
+        //    when the section is opened (see trigger click handler).
+      
+        // 2. Toggle section visibility when the trigger icon is clicked
+        apiKeyTrigger.addEventListener('click', () => {
+          const isHidden = apiKeySection.classList.contains('hidden');
+      
+          if (isHidden) {
+            // If currently hidden, show it
+            apiKeySection.classList.remove('hidden');
+            // When showing, load the current key from cookie into the input field
+            const currentKey = getCookie('userApiKey'); // Use a consistent cookie name
+            if (currentKey) {
+              apiKeyInput.value = currentKey;
+            } else {
+              // Clear input if no key exists in cookie
+              apiKeyInput.value = '';
+            }
+          } else {
+            // If currently visible, hide it
+            apiKeySection.classList.add('hidden');
+            // Optional: Clear the input field when hiding for privacy
+            // apiKeyInput.value = '';
+          }
+        });
+      
+        // 3. Save API key to cookie when the Save button is clicked
+        saveApiKeyButton.addEventListener('click', () => {
+          const apiKey = apiKeyInput.value.trim(); // Get value and remove whitespace
+      
+          if (apiKey) {
+            // Save the key to a cookie named 'userApiKey' for 30 days
+            setCookie('userApiKey', apiKey, 30);
+            console.log('API Key saved.');
+            // You might want to add a visual confirmation to the user
+          } else {
+            // If input is empty, remove the cookie
+            setCookie('userApiKey', '', -1); // Setting expiry to -1 effectively deletes the cookie
+            console.log('API Key cleared.');
+            // Optional: Add a confirmation message
+          }
+      
+          // Close the section after saving/clearing
+          apiKeySection.classList.add('hidden');
+      
+          // Optional: Clear the input field after saving/clearing
+          // apiKeyInput.value = '';
+        });
+      
+        // --- Function to retrieve the saved API key from anywhere in your app ---
+        // You will call this function whenever you need the API key for your API calls.
+        window.getSavedApiKey = () => {
+            return getCookie('userApiKey');
+        };
+      
+    
+
+
     // NEW: Setup Listeners specific to the Persona Management View and Form
     setupPersonaManagementListeners();
 

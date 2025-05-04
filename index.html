@@ -1,6 +1,6 @@
-
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,19 +8,20 @@
     <link rel="stylesheet" href="style.css">
     <!-- Link to your CSS file -->
 </head>
+
 <body class="locked light-mode">
     <!-- Body has .locked class by default, removed by JS unlock. Theme is set by JS. -->
 
     <!-- Global Controls (positioned via CSS) -->
     <!-- These controls should always be in the DOM, their visibility is managed by CSS based on the body.locked class -->
-   
+
 
 
     <!-- Lock Screen Overlay (This is the modal overlay when locked) -->
     <!-- Its visibility is controlled by CSS based on body.locked -->
     <div id="lock-screen">
         <div class="lock-content"> <!-- Reverted class name -->
-             <!-- This button reveals the password input -->
+            <!-- This button reveals the password input -->
             <button id="reveal-password-button" class="icon-button large-icon" aria-label="Reveal Password Input">
                 🛠️ <!-- Using a Lock icon again -->
             </button>
@@ -41,17 +42,35 @@
     <!-- It is hidden when the app is locked via CSS -->
     <div id="main-app-content">
         <div>
-             <div class="global-controls" role="group" aria-label="Global Controls">
-        <button id="dark-mode-toggle" class="icon-button theme-toggle" aria-label="Toggle Dark Mode">
-            <span class="sun-icon">☀️</span>
-            <span class="moon-icon">🌙</span>
-        </button>
-        <!-- Button to manually lock the app (visible when unlocked) -->
-        <!-- This button now triggers the lock screen overlay -->
-        <button id="lock-app-button" class="icon-button" aria-label="Lock App">
-            🔓
-        </button>
-    </div>
+            <div class="global-controls" role="group" aria-label="Global Controls">
+                <button id="dark-mode-toggle" class="icon-button theme-toggle" aria-label="Toggle Dark Mode">
+                    <span class="sun-icon">☀️</span>
+                    <span class="moon-icon">🌙</span>
+                </button>
+                <!-- Button to manually lock the app (visible when unlocked) -->
+                <!-- This button now triggers the lock screen overlay -->
+                <button id="lock-app-button" class="icon-button" aria-label="Lock App">
+                    🔓
+                </button>
+                <!-- Container for the API Key input component -->
+                <div class="api-key-container">
+
+                    <!-- Icon/Emoji Trigger -->
+                    <!-- You can replace ⚙️ with any icon font class (like Font Awesome) or image -->
+                    <span id="api-key-trigger" class="api-key-trigger" title="Add/Manage API Key">
+                        ⚙️ <!-- Example: Gear emoji -->
+                    </span>
+
+                    <!-- Collapsible Section for API Key Input -->
+                    <div id="api-key-section" class="api-key-section hidden">
+                        <h4>Add or Update Your API Key</h4>
+                        <p>Enter your API key below. It will be saved in your browser's cookies.</p>
+                        <input type="text" id="api-key-input" placeholder="Enter your API key here">
+                        <button id="save-api-key-button">Save Key</button>
+                    </div>
+
+                </div>
+            </div>
         </div>
 
         <!-- Persona Selection View -->
@@ -67,31 +86,47 @@
                     <label for="filter-all" role="option">All</label>
 
                     <!-- Add more filter checkboxes here manually or generate with JS if needed -->
-                    <input type="checkbox" id="filter-female" name="persona-type" value="female"><label for="filter-female" role="option">Female</label>
-                    <input type="checkbox" id="filter-male" name="persona-type" value="male"><label for="filter-male" role="option">Male</label>
-                    <input type="checkbox" id="filter-other" name="persona-type" value="other"><label for="filter-other" role="option">Other</label>
-                    <input type="checkbox" id="filter-general" name="persona-type" value="general"><label for="filter-general" role="option">General</label>
-                    <input type="checkbox" id="filter-romantic" name="persona-type" value="romantic"><label for="filter-romantic" role="option">Romantic</label>
-                    <input type="checkbox" id="filter-dating" name="persona-type" value="dating"><label for="filter-dating" role="option">Dating</label>
-                    <input type="checkbox" id="filter-flirty" name="persona-type" value="flirty"><label for="filter-flirty" role="option">Flirty</label>
-                    <input type="checkbox" id="filter-complex-relationship" name="persona-type" value="complex-relationship"><label for="filter-complex-relationship" role="option">Complex Relationship</label>
-                    <input type="checkbox" id="filter-beliefs" name="persona-type" value="beliefs"><label for="filter-beliefs" role="option">Beliefs</label>
-                    <input type="checkbox" id="filter-professional" name="persona-type" value="professional"><label for="filter-professional" role="option">Professional</label>
-                    <input type="checkbox" id="filter-service" name="persona-type" value="service"><label for="filter-service" role="option">Service</label>
-                    <input type="checkbox" id="filter-fun" name="persona-type" value="fun"><label for="filter-fun" role="option">Fun</label>
-                    <input type="checkbox" id="filter-anime" name="persona-type" value="anime"><label for="filter-anime" role="option">Anime</label>
-                    <input type="checkbox" id="filter-diverse" name="persona-type" value="diverse"><label for="filter-diverse" role="option">Diverse</label>
+                    <input type="checkbox" id="filter-female" name="persona-type" value="female"><label
+                        for="filter-female" role="option">Female</label>
+                    <input type="checkbox" id="filter-male" name="persona-type" value="male"><label for="filter-male"
+                        role="option">Male</label>
+                    <input type="checkbox" id="filter-other" name="persona-type" value="other"><label for="filter-other"
+                        role="option">Other</label>
+                    <input type="checkbox" id="filter-general" name="persona-type" value="general"><label
+                        for="filter-general" role="option">General</label>
+                    <input type="checkbox" id="filter-romantic" name="persona-type" value="romantic"><label
+                        for="filter-romantic" role="option">Romantic</label>
+                    <input type="checkbox" id="filter-dating" name="persona-type" value="dating"><label
+                        for="filter-dating" role="option">Dating</label>
+                    <input type="checkbox" id="filter-flirty" name="persona-type" value="flirty"><label
+                        for="filter-flirty" role="option">Flirty</label>
+                    <input type="checkbox" id="filter-complex-relationship" name="persona-type"
+                        value="complex-relationship"><label for="filter-complex-relationship" role="option">Complex
+                        Relationship</label>
+                    <input type="checkbox" id="filter-beliefs" name="persona-type" value="beliefs"><label
+                        for="filter-beliefs" role="option">Beliefs</label>
+                    <input type="checkbox" id="filter-professional" name="persona-type" value="professional"><label
+                        for="filter-professional" role="option">Professional</label>
+                    <input type="checkbox" id="filter-service" name="persona-type" value="service"><label
+                        for="filter-service" role="option">Service</label>
+                    <input type="checkbox" id="filter-fun" name="persona-type" value="fun"><label for="filter-fun"
+                        role="option">Fun</label>
+                    <input type="checkbox" id="filter-anime" name="persona-type" value="anime"><label for="filter-anime"
+                        role="option">Anime</label>
+                    <input type="checkbox" id="filter-diverse" name="persona-type" value="diverse"><label
+                        for="filter-diverse" role="option">Diverse</label>
                 </div>
-                 <input type="text" id="persona-search" placeholder="Search personas..." aria-label="Search personas" autocomplete="off">
-                 <!-- Button to go to Persona Management (Visible when unlocked and in Persona Selection view) -->
-                 <button id="manage-personas-button" aria-label="Manage Personas">Manage Personas</button>
+                <input type="text" id="persona-search" placeholder="Search personas..." aria-label="Search personas"
+                    autocomplete="off">
+                <!-- Button to go to Persona Management (Visible when unlocked and in Persona Selection view) -->
+                <button id="manage-personas-button" aria-label="Manage Personas">Manage Personas</button>
             </div>
 
             <div id="persona-grid" role="listbox" aria-label="Select a persona">
                 <!-- Persona cards will be rendered here by JavaScript -->
             </div>
-             <!-- Optional ARIA status element for screen readers -->
-             <div id="grid-status" role="status" aria-live="polite" class="visually-hidden"></div>
+            <!-- Optional ARIA status element for screen readers -->
+            <div id="grid-status" role="status" aria-live="polite" class="visually-hidden"></div>
         </div>
 
         <!-- Chat Container View -->
@@ -107,7 +142,8 @@
             </div>
             <div id="chat-input-area">
                 <label for="user-input" class="visually-hidden">Enter your message</label>
-                <textarea id="user-input" placeholder="Type your message..." rows="1" disabled aria-disabled="true" autocomplete="off"></textarea>
+                <textarea id="user-input" placeholder="Type your message..." rows="1" disabled aria-disabled="true"
+                    autocomplete="off"></textarea>
                 <button id="send-button" disabled aria-disabled="true">Send</button>
             </div>
         </div>
@@ -127,39 +163,42 @@
 
             <!-- Simple Add/Edit Form Modal -->
             <!-- Initially hidden -->
-            <div id="persona-form-modal" class="modal hidden" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="persona-form-title">
-                 <div class="modal-content">
-                     <h3 id="persona-form-title">Add New Persona</h3>
-                     <form id="persona-form">
-                          <input type="hidden" id="form-persona-key">
+            <div id="persona-form-modal" class="modal hidden" aria-hidden="true" role="dialog" aria-modal="true"
+                aria-labelledby="persona-form-title">
+                <div class="modal-content">
+                    <h3 id="persona-form-title">Add New Persona</h3>
+                    <form id="persona-form">
+                        <input type="hidden" id="form-persona-key">
 
-                          <div class="form-group">
-                              <label for="form-persona-name">Name:</label>
-                              <input type="text" id="form-persona-name" required autocomplete="off">
-                          </div>
+                        <div class="form-group">
+                            <label for="form-persona-name">Name:</label>
+                            <input type="text" id="form-persona-name" required autocomplete="off">
+                        </div>
 
-                          <div class="form-group">
-                              <label for="form-persona-instruction">Instruction:</label>
-                              <textarea id="form-persona-instruction" rows="5" required autocomplete="off"></textarea>
-                          </div>
+                        <div class="form-group">
+                            <label for="form-persona-instruction">Instruction:</label>
+                            <textarea id="form-persona-instruction" rows="5" required autocomplete="off"></textarea>
+                        </div>
 
-                           <div class="form-group">
-                               <label for="form-persona-types">Types (comma-separated):</label>
-                               <input type="text" id="form-persona-types" placeholder="e.g., female, male, other" autocomplete="off">
-                           </div>
+                        <div class="form-group">
+                            <label for="form-persona-types">Types (comma-separated):</label>
+                            <input type="text" id="form-persona-types" placeholder="e.g., female, male, other"
+                                autocomplete="off">
+                        </div>
 
-                           <div class="form-group">
-                               <label for="form-persona-categories">Categories (comma-separated):</label>
-                               <input type="text" id="form-persona-categories" placeholder="e.g., general, romantic, fun" autocomplete="off">
-                           </div>
+                        <div class="form-group">
+                            <label for="form-persona-categories">Categories (comma-separated):</label>
+                            <input type="text" id="form-persona-categories" placeholder="e.g., general, romantic, fun"
+                                autocomplete="off">
+                        </div>
 
-                          <div class="form-actions">
-                               <button type="submit">Save Persona</button>
-                               <button type="button" id="cancel-form-button">Cancel</button>
-                          </div>
-                     </form>
-                 </div>
-             </div>
+                        <div class="form-actions">
+                            <button type="submit">Save Persona</button>
+                            <button type="button" id="cancel-form-button">Cancel</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
         </div>
 
     </div>
@@ -172,4 +211,5 @@
     <!-- Ensure the path is correct based on where your js folder is -->
     <script src="./main.js" type="module"></script>
 </body>
+
 </html>

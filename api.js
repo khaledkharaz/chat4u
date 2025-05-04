@@ -38,7 +38,21 @@ export const sendMessageToAPI = async (personaInstruction, history, message) => 
     };
 
     // THIS IS THE DIRECT API CALL (Insecure client-side)
-    const apiResponse = await fetch(`${API_BASE_URL}?key=${GOOGLE_API_KEY}`, {
+ 
+    function getCookie(name) {
+        const nameEQ = name + "=";
+        const ca = document.cookie.split(';');
+        for(let i = 0; i < ca.length; i++) {
+          let c = ca[i];
+          while (c.charAt(0) === ' ') c = c.substring(1, c.length);
+          if (c.indexOf(nameEQ) === 0) return c.substring(nameEQ.length, c.length);
+        }
+        return null;
+      }
+  const currentKey = getCookie('userApiKey'); // Use a consistent cookie name
+ console.log({ currentKey, GOOGLE_API_KEY})
+ const myKey =currentKey || GOOGLE_API_KEY;
+    const apiResponse = await fetch(`${API_BASE_URL}?key=${myKey}`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
