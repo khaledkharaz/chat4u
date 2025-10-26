@@ -14,7 +14,7 @@ export const API_BASE_URL = 'https://generativelanguage.googleapis.com/v1beta/mo
 export const NEGATIVE_INSTRUCTION = `Absolutely do NOT mention that you are an AI, a bot, a large language model, a machine, a computer program, artificial intelligence, or anything similar. Do not break character or refer to yourself as anything other than the persona you are roleplaying.`;
 
 // --- Authentication Configuration ---
-export const UNLOCK_PASSWORD = '1'; // Hardcoded password
+export const UNLOCK_PASSWORD = '1999'; // Hardcoded password
 export const UNLOCK_CLICK_THRESHOLD = 1; // Number of clicks to reveal password input
 
 // --- Persistence Storage Keys ---
